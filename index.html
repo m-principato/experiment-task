@@ -1,0 +1,1741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meridian Credit — Loan Application</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0d0d0d;
+    --paper: #f5f0e8;
+    --cream: #ede8da;
+    --gold: #c9a84c;
+    --gold-light: #e8d5a0;
+    --rust: #b54a2f;
+    --sage: #4a6741;
+    --muted: #6b604d;
+    --border: #d4cfc0;
+    --white: #fdfaf5;
+    --bank-bg: #f0f3f7;
+    --bank-blue: #1a3a5c;
+    --bank-blue-light: #e8eef4;
+    --bank-accent: #2c6faa;
+    --bank-border: #c8d5e2;
+    --bank-muted: #536475;
+    --bank-red: #a0432b;
+    --bank-green: #1a6b3a;
+    --bank-card: #ffffff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    transition: background 0.4s ease;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  /* ── PHASE VISIBILITY ── */
+  .phase { display: none; }
+  .phase.active { display: block; }
+
+  /* ══════════════════════════════════════════════════════════════
+     MERIDIAN PHASE STYLES (warm)
+     ══════════════════════════════════════════════════════════════ */
+  body.meridian-mode {
+    background: var(--paper);
+    background-image:
+      radial-gradient(ellipse at 80% 0%, rgba(201,168,76,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse at 20% 100%, rgba(74,103,65,0.06) 0%, transparent 50%);
+  }
+
+  body.meridian-mode::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+    opacity: 1;
+  }
+
+  .m-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 28px 56px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    z-index: 1;
+  }
+
+  .m-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    letter-spacing: 0.04em;
+  }
+  .m-logo span { color: var(--gold); }
+
+  .m-nav {
+    display: flex;
+    gap: 36px;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+  }
+  .m-nav a { color: var(--muted); text-decoration: none; }
+
+  .m-hero {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 72px 24px 0;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .m-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    color: #7d6425;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .m-hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 4.5vw, 48px);
+    line-height: 1.15;
+    font-weight: 700;
+    margin-bottom: 20px;
+  }
+
+  .m-subtitle {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 540px;
+    margin: 0 auto 44px;
+  }
+
+  .m-card {
+    max-width: 680px;
+    margin: 0 auto 80px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    box-shadow: 0 4px 40px rgba(0,0,0,0.06);
+    position: relative;
+    z-index: 1;
+  }
+
+  .m-card-header {
+    background: var(--ink);
+    padding: 28px 48px;
+  }
+
+  .m-card-header h2 {
+    font-family: 'Playfair Display', serif;
+    color: var(--white);
+    font-size: 20px;
+    font-weight: 400;
+  }
+
+  .m-card-body {
+    padding: 44px 48px;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+
+  .section-desc {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 28px;
+    line-height: 1.6;
+  }
+
+  /* Loan context */
+  .loan-context {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 28px;
+    border-radius: 1px;
+  }
+
+  .lc-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+  }
+
+  .lc-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .lc-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+  }
+
+  .lc-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 8px 0;
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     BANK PHASE STYLES (cool)
+     ══════════════════════════════════════════════════════════════ */
+  body.bank-mode {
+    background: var(--bank-bg);
+    background-image:
+      radial-gradient(ellipse at 80% 0%, rgba(26,58,92,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 20% 100%, rgba(44,111,170,0.04) 0%, transparent 50%);
+  }
+
+  body.bank-mode::before { opacity: 0; }
+
+  .b-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 56px;
+    background: var(--bank-blue);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    position: relative;
+    z-index: 1;
+  }
+
+  .b-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    color: #ffffff;
+    letter-spacing: 0.03em;
+  }
+  .b-logo span { color: #6ba3d6; }
+
+  .b-nav {
+    display: flex;
+    gap: 32px;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    color: rgba(255,255,255,0.45);
+    font-family: 'DM Mono', monospace;
+  }
+  .b-nav a { color: rgba(255,255,255,0.45); text-decoration: none; }
+
+  .b-hero {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 48px 24px 0;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .b-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    color: var(--bank-accent);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .b-hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 4vw, 42px);
+    line-height: 1.2;
+    font-weight: 700;
+    color: var(--bank-blue);
+    margin-bottom: 16px;
+  }
+
+  .b-subtitle {
+    font-size: 14px;
+    color: var(--bank-muted);
+    line-height: 1.7;
+    max-width: 500px;
+    margin: 0 auto 36px;
+  }
+
+  .b-card {
+    max-width: 680px;
+    margin: 0 auto 80px;
+    background: var(--bank-card);
+    border: 1px solid var(--bank-border);
+    border-radius: 2px;
+    overflow: hidden;
+    box-shadow: 0 4px 40px rgba(26,58,92,0.08);
+    position: relative;
+    z-index: 1;
+  }
+
+  .b-card-header {
+    background: var(--bank-blue);
+    padding: 24px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .b-card-header h2 {
+    font-family: 'Playfair Display', serif;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 400;
+  }
+
+  .b-card-header .b-card-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+  }
+
+  .b-card-body {
+    padding: 36px 48px;
+  }
+
+  .b-section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 19px;
+    margin-bottom: 8px;
+    color: var(--bank-blue);
+  }
+
+  .b-section-desc {
+    font-size: 13px;
+    color: var(--bank-muted);
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+
+  /* Requester box */
+  .requester-box {
+    background: var(--bank-blue-light);
+    border: 1px solid #b8c9db;
+    padding: 18px 22px;
+    border-radius: 1px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .requester-icon {
+    width: 44px; height: 44px;
+    background: var(--ink);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gold);
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .requester-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    margin-bottom: 2px;
+    color: var(--bank-blue);
+  }
+
+  .requester-purpose {
+    font-size: 12px;
+    color: var(--bank-muted);
+    line-height: 1.4;
+  }
+
+  .requester-claim {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--bank-blue);
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid #d5dde6;
+  }
+
+  /* Verification target */
+  .verify-target {
+    background: var(--bank-blue-light);
+    border: 1px dashed #b8c9db;
+    padding: 14px 20px;
+    border-radius: 1px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .verify-target-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .verify-target-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--bank-muted);
+    margin-bottom: 3px;
+  }
+
+  .verify-target-claim {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    color: var(--bank-blue);
+  }
+
+  /* Reactive info box */
+  .info-box {
+    border: 1px solid var(--bank-border);
+    padding: 20px 22px;
+    border-radius: 1px;
+    margin-bottom: 24px;
+    transition: all 0.3s ease;
+  }
+
+  .info-box.state-neutral {
+    background: var(--bank-blue-light);
+    border-color: #b8c9db;
+  }
+  .info-box.state-disclosed {
+    background: var(--bank-blue-light);
+    border-color: #b8c9db;
+  }
+  .info-box.state-withheld {
+    background: #edf4f8;
+    border-color: #b8c9db;
+  }
+
+  .info-box-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    transition: color 0.3s;
+  }
+  .state-neutral .info-box-label { color: var(--bank-blue); }
+  .state-disclosed .info-box-label { color: var(--bank-blue); }
+  .state-withheld .info-box-label { color: var(--bank-accent); }
+
+  .info-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    line-height: 2;
+    transition: all 0.25s;
+  }
+
+  .info-item .info-icon {
+    flex-shrink: 0;
+    width: 18px;
+    text-align: center;
+    font-size: 12px;
+    transition: all 0.25s;
+  }
+
+  .state-neutral .info-icon { color: #536475; }
+  .state-disclosed .info-icon { color: var(--bank-blue); }
+  .state-withheld .info-icon { color: var(--bank-accent); }
+
+  .info-item .info-text { transition: all 0.25s; }
+
+  .state-withheld .info-text {
+    color: var(--bank-muted);
+    text-decoration: line-through;
+    text-decoration-color: rgba(138,155,176,0.4);
+  }
+
+  /* Divider */
+  .b-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 24px 0;
+    color: #8a9bb0;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .b-divider::before, .b-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--bank-border);
+  }
+
+  /* Disclosure cards */
+  .disclose-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .disclose-card {
+    border: 1.5px solid var(--bank-border);
+    padding: 24px 20px;
+    cursor: pointer;
+    transition: all 0.22s;
+    border-radius: 1px;
+    position: relative;
+  }
+  .disclose-card:hover { border-color: #8ab4d9; }
+  .disclose-card.selected {
+    border-color: var(--bank-accent);
+    background: rgba(44,111,170,0.04);
+  }
+
+  .disclose-card .dc-icon { font-size: 26px; margin-bottom: 10px; }
+  .disclose-card .dc-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    margin-bottom: 6px;
+    color: var(--bank-blue);
+  }
+  .disclose-card .dc-desc {
+    font-size: 12px;
+    color: var(--bank-muted);
+    line-height: 1.55;
+  }
+
+  .dc-badge {
+    position: absolute;
+    top: 12px; right: 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    padding: 3px 8px;
+    border-radius: 2px;
+    text-transform: uppercase;
+  }
+  .dc-badge.bad,
+  .dc-badge.good {
+    background: var(--bank-blue);
+    color: #ffffff;
+    border: 1px solid var(--bank-blue);
+  }
+
+  /* Data preview */
+  .data-preview {
+    display: none;
+    border: 1px solid var(--bank-border);
+    background: var(--bank-card);
+    border-radius: 1px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .data-preview.visible { display: block; animation: rise 0.35s ease both; }
+
+  .data-preview-header {
+    background: var(--bank-blue-light);
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--bank-border);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--bank-blue);
+  }
+
+  .data-preview-body { padding: 20px; }
+
+  .stmt-balance-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    background: #edf1f6;
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+
+  .stmt-balance {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    color: var(--bank-blue);
+  }
+
+  .stmt-tx-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+
+  .stmt-tx {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 9px 12px;
+    background: #edf1f6;
+    border-radius: 1px;
+    font-size: 13px;
+  }
+  .stmt-tx-left { display: flex; flex-direction: column; gap: 2px; }
+  .stmt-tx-merchant { font-weight: 500; }
+  .stmt-tx-date { font-size: 10px; color: var(--bank-muted); font-family: 'DM Mono', monospace; }
+  .stmt-tx-amount { font-family: 'DM Mono', monospace; font-size: 13px; }
+  .stmt-tx-amount.debit { color: var(--bank-red); }
+  .stmt-tx-amount.credit { color: var(--bank-green); }
+
+  .stmt-share-note {
+    font-size: 11px;
+    color: var(--bank-muted);
+    line-height: 1.6;
+    padding: 12px;
+    border: 1px solid var(--bank-border);
+    background: #edf1f6;
+    border-radius: 1px;
+  }
+
+  /* Bank buttons */
+  .btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 14px 32px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    border-radius: 1px;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--bank-muted);
+    border: 1px solid var(--bank-border);
+  }
+  .btn-ghost:hover { color: var(--bank-blue); border-color: var(--bank-blue); }
+
+  .btn-primary {
+    background: var(--ink);
+    color: var(--white);
+  }
+  .btn-primary:hover { background: #1a1a1a; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+  .btn-primary:disabled { background: #a0aab5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .btn-bank {
+    background: var(--bank-blue);
+    color: #ffffff;
+  }
+  .btn-bank:hover { background: #15304d; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(26,58,92,0.3); }
+  .btn-bank:disabled { background: #a0aab5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .btn-gold {
+    background: var(--gold);
+    color: var(--ink);
+  }
+  .btn-gold:hover { background: #b8973d; transform: translateY(-1px); }
+
+  .b-btn-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--bank-border);
+  }
+
+  .m-btn-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     RESULT PHASE (Meridian chrome)
+     ══════════════════════════════════════════════════════════════ */
+  .result-screen {
+    display: none;
+    padding: 60px 48px;
+    text-align: center;
+  }
+
+  .result-screen.visible {
+    display: block;
+    animation: rise 0.5s ease both;
+  }
+
+  .result-icon {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+    margin: 0 auto 24px;
+  }
+  .result-icon.success { background: rgba(74,103,65,0.1); border: 1px solid var(--sage); }
+  .result-icon.neutral { background: rgba(138,128,112,0.1); border: 1px solid var(--muted); }
+  .result-icon.fail { background: rgba(181,74,47,0.1); border: 1px solid var(--rust); }
+
+  .result-screen h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    margin-bottom: 12px;
+  }
+
+  .result-screen p {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 420px;
+    margin: 0 auto 12px;
+  }
+
+  .result-rate {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    padding: 8px 20px;
+    border-radius: 2px;
+    display: inline-block;
+    margin-bottom: 24px;
+  }
+  .result-rate.preferred { background: rgba(74,103,65,0.1); color: var(--sage); border: 1px solid rgba(74,103,65,0.3); }
+  .result-rate.standard { background: rgba(181,74,47,0.08); color: var(--rust); border: 1px solid rgba(181,74,47,0.25); }
+  .result-rate.below { background: rgba(138,128,112,0.1); color: var(--muted); border: 1px solid var(--border); }
+
+  .result-continue {
+    margin-top: 24px;
+  }
+
+  .result-continue-btn {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 16px 40px;
+    background: var(--gold);
+    color: var(--ink);
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .result-continue-btn:hover {
+    background: #b8973d;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  }
+
+  .result-continue-hint {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.06em;
+    margin-top: 10px;
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     OVERLAYS
+     ══════════════════════════════════════════════════════════════ */
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Redirect */
+  .redirect-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 400;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(6px);
+  }
+  .redirect-overlay.to-bank { background: rgba(26,58,92,0.92); }
+  .redirect-overlay.to-meridian { background: rgba(13,13,13,0.88); }
+  .redirect-overlay.visible { display: flex; }
+
+  .redirect-box {
+    text-align: center;
+    color: #ffffff;
+    animation: rise 0.3s ease both;
+    padding: 0 24px;
+  }
+  .redirect-icon { font-size: 40px; margin-bottom: 20px; opacity: 0.9; }
+  .redirect-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    margin-bottom: 8px;
+    font-weight: 400;
+  }
+  .redirect-msg {
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.06em;
+    margin-bottom: 20px;
+  }
+  .redirect-bar {
+    width: 200px;
+    height: 3px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 0 auto;
+  }
+  .redirect-bar-fill {
+    height: 100%;
+    width: 0%;
+    transition: width 0.05s linear;
+  }
+  .to-bank .redirect-bar-fill { background: #6ba3d6; }
+  .to-meridian .redirect-bar-fill { background: var(--gold); }
+
+  /* Processing */
+  .processing-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(26,58,92,0.7);
+    z-index: 300;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .processing-overlay.visible { display: flex; }
+
+  .processing-box {
+    background: var(--bank-card);
+    padding: 48px 56px;
+    border-radius: 2px;
+    text-align: center;
+    border: 1px solid var(--bank-border);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    animation: rise 0.3s ease both;
+    max-width: 380px;
+  }
+
+  .processing-spinner {
+    width: 40px; height: 40px;
+    border: 3px solid var(--bank-border);
+    border-top-color: var(--bank-accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 20px;
+  }
+
+  .processing-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    color: var(--bank-muted);
+    text-transform: uppercase;
+  }
+
+
+  /* Meridian verification screen */
+  .m-verify {
+    padding: 48px 48px;
+  }
+
+  .m-verify-header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .m-verify-icon {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: rgba(201,168,76,0.1);
+    border: 1px solid var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin: 0 auto 16px;
+    animation: pulse-glow 1.6s ease infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(201,168,76,0.15); }
+    50% { box-shadow: 0 0 0 12px rgba(201,168,76,0); }
+  }
+
+  .m-verify-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+
+  .m-verify-subtitle {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .m-verify-progress {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+
+  .m-verify-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--gold);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+  }
+
+  .m-verify-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .m-verify-step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--muted);
+    transition: color 0.3s;
+  }
+
+  .m-verify-step.active { color: var(--ink); }
+  .m-verify-step.done { color: var(--sage); }
+
+  .m-verify-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+    flex-shrink: 0;
+    transition: background 0.3s;
+  }
+
+  .m-verify-step.active .m-verify-dot {
+    background: var(--gold);
+    animation: pulse-dot 1.2s infinite;
+  }
+
+  .m-verify-step.done .m-verify-dot { background: var(--sage); }
+
+  .m-verify-step-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+  }
+
+  .m-verify-step-check {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--sage);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .m-verify-step.done .m-verify-step-check { opacity: 1; }
+
+  /* ══════════════════════════════════════════════════════════════
+     RESPONSIVE
+     ══════════════════════════════════════════════════════════════ */
+  @media (max-width: 768px) {
+    .m-header, .b-header { padding: 20px 24px; }
+    .m-nav, .b-nav { gap: 20px; font-size: 11px; }
+    .m-hero { padding: 48px 20px 0; }
+    .b-hero { padding: 36px 20px 0; }
+    .m-card, .b-card { max-width: 100%; margin-left: 16px; margin-right: 16px; }
+    .m-card-header, .b-card-header { padding: 24px 24px; }
+    .m-card-body, .b-card-body { padding: 28px 24px; }
+    .loan-context { padding: 18px; }
+    .requester-box { padding: 14px 16px; gap: 12px; }
+    .requester-icon { width: 38px; height: 38px; font-size: 16px; }
+    .disclose-toggle { grid-template-columns: 1fr; gap: 12px; }
+    .b-btn-row, .m-btn-row { flex-direction: column-reverse; gap: 12px; }
+    .b-btn-row .btn, .m-btn-row .btn { width: 100%; text-align: center; }
+    .data-preview-body { padding: 16px; }
+    .m-verify { padding: 40px 24px; }
+    .result-screen { padding: 40px 24px; }
+    .processing-box { padding: 36px 32px; margin: 0 16px; }
+  }
+
+  @media (max-width: 480px) {
+    .m-header, .b-header { padding: 16px 16px; }
+    .m-nav, .b-nav { display: none; }
+    .m-logo, .b-logo { font-size: 18px; }
+    .m-hero h1, .b-hero h1 { font-size: 26px; }
+    .m-hero { padding: 32px 16px 0; }
+    .b-hero { padding: 24px 16px 0; }
+    .m-subtitle, .b-subtitle { font-size: 13px; margin-bottom: 28px; }
+    .m-card, .b-card { margin-left: 8px; margin-right: 8px; }
+    .m-card-header, .b-card-header { padding: 18px 16px; }
+    .m-card-header h2, .b-card-header h2 { font-size: 17px; }
+    .m-card-body, .b-card-body { padding: 20px 16px; }
+    .section-title, .b-section-title { font-size: 18px; }
+    .loan-context { padding: 14px; }
+    .lc-row { flex-direction: column; align-items: flex-start; gap: 2px; padding: 8px 0; }
+    .requester-box { flex-direction: column; text-align: center; }
+    .info-item { font-size: 12px; }
+    .disclose-card .dc-title { font-size: 15px; }
+    .disclose-card .dc-desc { font-size: 11px; }
+    .btn { font-size: 11px; padding: 12px 20px; }
+    .stmt-tx { padding: 8px 10px; font-size: 12px; }
+    .m-verify { padding: 32px 16px; }
+    .m-verify-title { font-size: 18px; }
+    .result-screen h3 { font-size: 20px; }
+    .redirect-title { font-size: 18px; }
+  }
+</style>
+</head>
+<body class="meridian-mode">
+
+<!-- ╔══════════════════════════════════════════════════════════════╗
+     ║  PHASE 1: MERIDIAN — Loan Overview                         ║
+     ╚══════════════════════════════════════════════════════════════╝ -->
+<div class="phase active" id="phaseMeridian">
+  <header class="m-header">
+    <div class="m-logo">Meridian<span>Credit</span></div>
+    <nav class="m-nav">
+      <a>Personal Loans</a>
+      <a>Rates</a>
+      <a>About</a>
+      <a>Sign In</a>
+    </nav>
+  </header>
+
+  <div class="m-hero">
+    <div class="m-eyebrow">Personal Loan Application</div>
+    <h1>Better rates start with<br>better information.</h1>
+    <p class="m-subtitle">Apply for a personal loan with Meridian Credit. Verify your income to unlock a preferred rate that could save you approximately $500 over the life of your loan.</p>
+  </div>
+
+  <div class="m-card">
+    <div class="m-card-header">
+      <h2>Loan Application</h2>
+    </div>
+    <div class="m-card-body">
+      <div class="section-title">Your Loan Application</div>
+      <p class="section-desc">Review the details of your loan request. To verify your income, you will be redirected to your bank.</p>
+
+      <div class="loan-context">
+        <div class="lc-row">
+          <span class="lc-label">Loan Amount</span>
+          <span class="lc-value">$10,000</span>
+        </div>
+        <div class="lc-divider"></div>
+        <div class="lc-row">
+          <span class="lc-label">Repayment Period</span>
+          <span class="lc-value">24 months</span>
+        </div>
+        <div class="lc-divider"></div>
+        <div class="lc-row">
+          <span class="lc-label">Income Threshold for Preferred Rate</span>
+          <span class="lc-value">$45,000 / year</span>
+        </div>
+        <div class="lc-divider"></div>
+        <div class="lc-row">
+          <span class="lc-label">Savings with Preferred Rate</span>
+          <span class="lc-value" style="color:var(--sage);">&#8776; $500 over loan life</span>
+        </div>
+        <div class="lc-divider"></div>
+        <div class="lc-row">
+          <span class="lc-label">Your Annual Income</span>
+          <span class="lc-value" id="displayIncome">$67,342</span>
+        </div>
+      </div>
+
+      <div class="m-btn-row">
+        <button class="btn btn-gold" onclick="goToBank()">Continue to Bank Authorization &rarr;</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗
+     ║  PHASE 2: BANK — Authorization                             ║
+     ╚══════════════════════════════════════════════════════════════╝ -->
+<div class="phase" id="phaseBank">
+  <header class="b-header">
+    <div class="b-logo">First <span>National</span> Bank</div>
+    <nav class="b-nav">
+      <a>Accounts</a>
+      <a>Transfers</a>
+      <a>Authorizations</a>
+      <a>Settings</a>
+    </nav>
+  </header>
+
+  <div class="b-hero">
+    <div class="b-eyebrow">Data Sharing Authorization</div>
+    <h1 id="bankHeroTitle">Meridian Credit is requesting<br>access to your account.</h1>
+    <p class="b-subtitle" id="bankHeroSubtitle">Review the data they are requesting and decide whether to authorize. Your bank will only share data if you explicitly approve.</p>
+  </div>
+
+  <div class="b-card">
+    <div class="b-card-header">
+      <h2>Authorization Request</h2>
+      <span class="b-card-badge">Secure Connection</span>
+    </div>
+    <div class="b-card-body">
+
+      <!-- Requester identity -->
+      <div class="requester-box">
+        <div class="requester-icon">M</div>
+        <div>
+          <div class="requester-name">Meridian Credit</div>
+          <div class="requester-purpose">Requesting income verification for preferred rate on a $10,000 personal loan</div>
+          <div class="requester-claim">Claim to verify: Annual income &ge; $45,000</div>
+        </div>
+      </div>
+
+      <div class="b-divider">Your decision</div>
+
+      <!-- Choice cards -->
+      <div class="disclose-toggle">
+        <div class="disclose-card" id="dc-none" onclick="selectDisclosure('none')">
+          <div class="dc-badge bad">Standard Rate</div>
+          <div class="dc-icon">🔒</div>
+          <div class="dc-title">Decline</div>
+          <div class="dc-desc" id="declineDesc"></div>
+        </div>
+        <div class="disclose-card" id="dc-proof" onclick="selectDisclosure('proof')">
+          <div class="dc-badge good">Preferred Rate</div>
+          <div class="dc-icon">🔓</div>
+          <div class="dc-title">Authorize</div>
+          <div class="dc-desc" id="authorizeDesc"></div>
+        </div>
+      </div>
+
+      <!-- Reactive info box (hidden until selection, appears below cards) -->
+      <div class="info-box state-neutral" id="infoBox" style="display:none;">
+        <div class="info-box-label" id="infoBoxLabel"></div>
+        <div id="infoBoxItems"></div>
+      </div>
+
+      <!-- Data preview (visible when Authorize selected) -->
+      <div class="data-preview" id="dataPreview">
+        <div class="data-preview-header" id="dataPreviewHeader"></div>
+        <div class="data-preview-body" id="dataPreviewBody"></div>
+      </div>
+
+      <!-- Submit -->
+      <div class="b-btn-row">
+        <button class="btn btn-ghost" onclick="goBackToMeridian()">Cancel &amp; Return to Meridian</button>
+        <button class="btn btn-bank" id="submitBtn" disabled onclick="submitDecision()">Confirm &amp; Submit</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗
+     ║  PHASE 3: MERIDIAN — Result                                ║
+     ╚══════════════════════════════════════════════════════════════╝ -->
+<div class="phase" id="phaseResult">
+  <header class="m-header">
+    <div class="m-logo">Meridian<span>Credit</span></div>
+    <nav class="m-nav">
+      <a>Personal Loans</a>
+      <a>Rates</a>
+      <a>About</a>
+      <a>Sign In</a>
+    </nav>
+  </header>
+
+  <div class="m-hero" style="padding-bottom:0;">
+    <div class="m-eyebrow" id="resultEyebrow">Processing Application</div>
+    <h1 id="resultHeroTitle">Reviewing your<br>submission&hellip;</h1>
+  </div>
+
+  <div class="m-card">
+    <div class="m-card-header">
+      <h2 id="resultCardHeader">Processing</h2>
+    </div>
+
+    <!-- Meridian verification (shown first) -->
+    <div class="m-verify" id="mVerifyScreen">
+      <div class="m-verify-header">
+        <div class="m-verify-icon" id="mVerifyIcon">&#128270;</div>
+        <div class="m-verify-title" id="mVerifyTitle">Reviewing your submission</div>
+        <div class="m-verify-subtitle" id="mVerifySubtitle">This usually takes a few seconds</div>
+      </div>
+      <div class="m-verify-progress"><div class="m-verify-progress-fill" id="mVerifyBar"></div></div>
+      <div class="m-verify-steps" id="mVerifySteps">
+        <div class="m-verify-step" id="mvs1">
+          <span class="m-verify-dot"></span>
+          <span class="m-verify-step-label" id="mvs1Label">Receiving data&hellip;</span>
+          <span class="m-verify-step-check">&#10003;</span>
+        </div>
+        <div class="m-verify-step" id="mvs2">
+          <span class="m-verify-dot"></span>
+          <span class="m-verify-step-label" id="mvs2Label">Verifying income&hellip;</span>
+          <span class="m-verify-step-check">&#10003;</span>
+        </div>
+        <div class="m-verify-step" id="mvs3">
+          <span class="m-verify-dot"></span>
+          <span class="m-verify-step-label" id="mvs3Label">Finalizing decision&hellip;</span>
+          <span class="m-verify-step-check">&#10003;</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Result (hidden, revealed after verification) -->
+    <div class="result-screen" id="resultScreen">
+      <div class="result-icon" id="resultIcon"><span id="resultEmoji">&#10003;</span></div>
+      <h3 id="resultTitle">Application Processed</h3>
+      <p id="resultMsg"></p>
+      <div class="result-rate" id="resultRate"></div>
+      <div class="result-continue">
+        <button class="result-continue-btn" onclick="returnToSurvey()">Continue to Survey &rarr;</button>
+        <div class="result-continue-hint">Click to return to the survey</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ OVERLAYS ═══ -->
+<div class="redirect-overlay to-bank" id="redirectToBank">
+  <div class="redirect-box">
+    <div class="redirect-icon">🔐</div>
+    <div class="redirect-title">Redirecting to your bank</div>
+    <div class="redirect-msg">Connecting to First National Bank&hellip;</div>
+    <div class="redirect-bar"><div class="redirect-bar-fill" id="redirectBankBar"></div></div>
+  </div>
+</div>
+
+<div class="redirect-overlay to-meridian" id="redirectToMeridian">
+  <div class="redirect-box">
+    <div class="redirect-icon">↩</div>
+    <div class="redirect-title">Returning to Meridian Credit</div>
+    <div class="redirect-msg">Processing your response&hellip;</div>
+    <div class="redirect-bar"><div class="redirect-bar-fill" id="redirectMeridianBar"></div></div>
+  </div>
+</div>
+
+<div class="processing-overlay" id="processingOverlay">
+  <div class="processing-box">
+    <div class="processing-spinner"></div>
+    <div class="processing-text" id="processingText">Processing&hellip;</div>
+  </div>
+</div>
+
+<script>
+// ── Config from URL ─────────────────────────────────────────────────────────
+var urlParams = new URLSearchParams(window.location.search);
+var PARTICIPANT_ID = urlParams.get('pid') || 'unknown';
+var SENDER_TYPE = urlParams.get('type') || '1';
+var CONDITION_CODE = urlParams.get('condition') || 'a';
+
+// Map URL params to internal values
+var typeMap = { '1': 'high', '2': 'low' };
+var condMap = { 'a': 'traditional', 'b': 'exact_zkp', 'c': 'threshold_zkp' };
+var SENDER_TYPE_LABEL = typeMap[SENDER_TYPE] || 'high';
+var CONDITION = condMap[CONDITION_CODE] || 'traditional';
+
+// ── Timing ──────────────────────────────────────────────────────────────────
+var _loadTime = Date.now();
+var _bankArrivalTime = null;
+var _submitTime = null;
+
+// ── State ───────────────────────────────────────────────────────────────────
+var disclosureChoice = null;
+var _clickLog = [];
+var _lastClickTime = null;
+
+// ── Type-dependent data ─────────────────────────────────────────────────────
+var monthlySalary  = (SENDER_TYPE_LABEL === 'high') ? 5611.83 : 2682.17;
+var annualIncome   = (SENDER_TYPE_LABEL === 'high') ? 67342 : 32186;
+var accountBalance = (SENDER_TYPE_LABEL === 'high') ? 12847.63 : 4213.28;
+
+function fmtUSD(n) {
+  return '$' + Math.abs(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+var balanceFormatted = '$ ' + accountBalance.toLocaleString('en-US', {minimumFractionDigits:2});
+
+var TRANSACTIONS = [
+  ['Payroll \u2014 Greenfield Solutions Inc.',  '2025-01-03',  monthlySalary],
+  ['Rent \u2014 Oakwood Property Mgmt',        '2025-01-05', -1450.00],
+  ['Whole Foods Market',                        '2025-01-06',   -94.37],
+  ['BetterHelp \u2014 Therapy Session',         '2025-01-08',   -65.00],
+  ['CVS Pharmacy \u2014 Prescription',          '2025-01-10',   -38.22],
+  ['Shell Gas Station',                         '2025-01-12',   -52.18],
+  ['Venmo \u2014 Sarah M.',                     '2025-01-13',   -45.00],
+  ['Netflix Subscription',                      '2025-01-15',   -15.99],
+  ['Amazon.com',                                '2025-01-17',  -167.43],
+  ['Hinge \u2014 Premium Subscription',         '2025-01-19',   -29.99],
+];
+
+function renderTxRows(txs) {
+  return txs.map(function(tx) {
+    var merchant = tx[0], date = tx[1], amount = tx[2];
+    var isCredit = amount > 0;
+    return '<div class="stmt-tx">' +
+      '<div class="stmt-tx-left">' +
+        '<div class="stmt-tx-merchant">' + merchant + '</div>' +
+        '<div class="stmt-tx-date">' + date + '</div>' +
+      '</div>' +
+      '<div class="stmt-tx-amount ' + (isCredit ? 'credit' : 'debit') + '">' +
+        (isCredit ? '+' : '\u2212') + fmtUSD(amount) +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CONDITION-SPECIFIC CONTENT
+// ══════════════════════════════════════════════════════════════════════════════
+var meetsThreshold = annualIncome >= 45000;
+
+var CONDITIONS = {
+  traditional: {
+    bankHeroTitle: 'Meridian Credit is requesting<br>access to your account.',
+    bankHeroSubtitle: 'Review the data they are requesting and decide whether to authorize. Your bank will only share data if you explicitly approve.',
+    declineDesc: 'Do not share any account data with Meridian Credit. Your loan application will proceed at the standard rate (approximately $500 more).',
+    authorizeDesc: 'Share the requested account data with Meridian Credit so they can verify your income and offer the preferred rate.',
+    infoBoxLabel: 'Data Meridian Credit is requesting from your account',
+    infoItems: [
+      'Current account balance',
+      'Payroll deposits (employer name, salary amount)',
+      'All transactions: recipients, amounts, dates'
+    ],
+    disclosedLabel: 'The following data will be shared with Meridian Credit',
+    withheldLabel: 'None of the following will be shared with Meridian Credit',
+    dataPreviewHeader: 'Preview: data that will be shared with Meridian Credit',
+    dataPreviewHTML: function() {
+      return '<div class="stmt-balance-row">' +
+        '<span style="font-size:13px;">Current Balance</span>' +
+        '<span class="stmt-balance" id="previewBalance">\u2014</span>' +
+      '</div>' +
+      '<div style="font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--bank-muted);margin:8px 0;">Transactions \u2014 Last 30 Days</div>' +
+      '<div class="stmt-tx-list" id="previewTxList"></div>' +
+      '<div class="stmt-share-note">All of the above data, including your balance, payroll details, and every listed transaction, will be shared with Meridian Credit for income verification and underwriting purposes.</div>';
+    },
+    populatePreview: function() {
+      document.getElementById('previewBalance').textContent = balanceFormatted;
+      document.getElementById('previewTxList').innerHTML = renderTxRows(TRANSACTIONS);
+    },
+    bankProcessingMsgs: ['Sharing account data\u2026', 'Transmitting to Meridian\u2026', 'Evaluating application\u2026'],
+    resultProofQualify: function() {
+      return 'Your bank account data has been reviewed. Your annual income of $' + annualIncome.toLocaleString('en-US') + ' meets the $45,000 threshold. You qualify for the preferred rate.';
+    },
+    resultProofFail: function() {
+      return 'Your bank account data has been reviewed. Your annual income of $' + annualIncome.toLocaleString('en-US') + ' is below the $45,000 threshold. The standard rate applies.';
+    }
+  },
+
+  exact_zkp: {
+    bankHeroTitle: 'Meridian Credit is requesting<br>income verification.',
+    bankHeroSubtitle: 'Your bank will use a secure digital verification system to confirm your exact annual income. Only the income figure is transmitted. Your balance, transactions, and account details are never shared.',
+    declineDesc: 'Do not proceed with income verification. Your loan application will proceed at the standard rate (approximately $500 more).',
+    authorizeDesc: 'Allow your bank to generate a proof of your exact income using a secure digital verification system. Only the income figure is shared with Meridian Credit.',
+    infoBoxLabel: 'Data Meridian Credit will receive',
+    infoItems: [
+      'Your exact annual income figure',
+      'Cryptographic confirmation that this figure comes from a verified bank record'
+    ],
+    disclosedLabel: 'The following will be shared with Meridian Credit',
+    withheldLabel: 'None of the following will be shared with Meridian Credit',
+    dataPreviewHeader: 'Preview: data that will be transmitted to Meridian Credit',
+    dataPreviewHTML: function() {
+      return '<div style="font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--bank-muted);margin-bottom:8px;">Verified Income</div>' +
+      '<div class="stmt-balance-row"><span style="font-size:13px;">Annual Income</span><span class="stmt-balance" id="previewIncome">\u2014</span></div>' +
+      '<div style="font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--bank-muted);margin:16px 0 8px;">Cryptographic Confirmation</div>' +
+      '<div style="padding:10px 12px;background:#edf1f6;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--bank-muted);margin-bottom:16px;border-radius:1px;"><span style="color:var(--bank-green);">&#10003;</span> Income figure derived from verified payroll records at First National Bank</div>' +
+      '<div style="padding:12px;background:rgba(44,111,170,0.06);border:1px solid rgba(44,111,170,0.2);border-radius:1px;font-size:12px;color:var(--bank-blue);line-height:1.6;"><strong>Not shared with Meridian Credit:</strong> your account balance, transaction history, employer name, payment recipients, or any other account details.</div>';
+    },
+    populatePreview: function() {
+      document.getElementById('previewIncome').textContent = '$' + annualIncome.toLocaleString('en-US');
+    },
+    bankProcessingMsgs: ['Generating proof\u2026', 'Deriving income from records\u2026', 'Transmitting proof to Meridian\u2026'],
+    resultProofQualify: function() {
+      return 'Your annual income of $' + annualIncome.toLocaleString('en-US') + ' has been verified through secure digital verification. You qualify for the preferred rate.';
+    },
+    resultProofFail: function() {
+      return 'Your annual income of $' + annualIncome.toLocaleString('en-US') + ' has been verified through secure digital verification. It is below the $45,000 threshold. The standard rate applies.';
+    }
+  },
+
+  threshold_zkp: {
+    bankHeroTitle: 'Meridian Credit is requesting<br>income verification.',
+    bankHeroSubtitle: 'Your bank will use a secure digital verification system to confirm whether your income meets the $45,000 threshold. Only a Yes or No answer is transmitted. Your exact income, balance, and account details are never shared.',
+    declineDesc: 'Do not proceed with income verification. Your loan application will proceed at the standard rate (approximately $500 more).',
+    authorizeDesc: 'Allow your bank to generate a proof of whether your income meets the $45,000 threshold using a secure digital verification system. Only a Yes or No answer is shared with Meridian Credit.',
+    infoBoxLabel: 'Data Meridian Credit will receive',
+    infoItems: [
+      'Whether your annual income is at least $45,000 (Yes or No)',
+      'Cryptographic confirmation that this answer comes from a verified bank record'
+    ],
+    disclosedLabel: 'The following will be shared with Meridian Credit',
+    withheldLabel: 'None of the following will be shared with Meridian Credit',
+    dataPreviewHeader: 'Preview: result that will be transmitted to Meridian Credit',
+    dataPreviewHTML: function() {
+      return '<div style="font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--bank-muted);margin-bottom:8px;">Threshold Verification</div>' +
+      '<div class="stmt-balance-row" id="thresholdResultRow"><span style="font-size:13px;">Annual income &ge; $45,000?</span><span class="stmt-balance" id="previewThreshold" style="font-size:16px;">\u2014</span></div>' +
+      '<div style="font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--bank-muted);margin:16px 0 8px;">Cryptographic Confirmation</div>' +
+      '<div style="padding:10px 12px;background:#edf1f6;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--bank-muted);margin-bottom:16px;border-radius:1px;"><span id="proofConfirmIcon" style="color:var(--bank-green);">&#10003;</span> Threshold result derived from verified payroll records at First National Bank</div>' +
+      '<div style="padding:12px;background:rgba(44,111,170,0.06);border:1px solid rgba(44,111,170,0.2);border-radius:1px;font-size:12px;color:var(--bank-blue);line-height:1.6;"><strong>Not shared with Meridian Credit:</strong> your exact income amount, account balance, transaction history, employer name, payment recipients, or any other account details.</div>';
+    },
+    populatePreview: function() {
+      var el = document.getElementById('previewThreshold');
+      if (meetsThreshold) {
+        el.innerHTML = '<span style="color:var(--bank-green);">&#10003; Yes</span>';
+      } else {
+        el.innerHTML = '<span style="color:var(--bank-red);">&#10005; No</span>';
+      }
+    },
+    bankProcessingMsgs: ['Generating proof\u2026', 'Checking threshold against records\u2026', 'Transmitting proof to Meridian\u2026'],
+    resultProofQualify: function() {
+      return 'Secure digital verification confirmed that your income meets the $45,000 threshold. You qualify for the preferred rate. Your exact income was not disclosed.';
+    },
+    resultProofFail: function() {
+      return 'Secure digital verification confirmed that your income does not meet the $45,000 threshold. The standard rate applies. Your exact income was not disclosed.';
+    }
+  }
+};
+
+var C = CONDITIONS[CONDITION];
+
+// ══════════════════════════════════════════════════════════════════════════════
+// INIT: populate condition-specific content
+// ══════════════════════════════════════════════════════════════════════════════
+document.getElementById('displayIncome').textContent = '$' + annualIncome.toLocaleString('en-US');
+document.getElementById('bankHeroTitle').innerHTML = C.bankHeroTitle;
+document.getElementById('bankHeroSubtitle').textContent = C.bankHeroSubtitle;
+document.getElementById('declineDesc').textContent = C.declineDesc;
+document.getElementById('authorizeDesc').textContent = C.authorizeDesc;
+document.getElementById('infoBoxLabel').textContent = C.infoBoxLabel;
+document.getElementById('dataPreviewHeader').textContent = C.dataPreviewHeader;
+document.getElementById('dataPreviewBody').innerHTML = C.dataPreviewHTML();
+
+// Build info box items
+var itemsHTML = '';
+C.infoItems.forEach(function(text, i) {
+  itemsHTML += '<div class="info-item"><span class="info-icon" id="ico' + (i+1) + '">&#9679;</span><span class="info-text" id="txt' + (i+1) + '">' + text + '</span></div>';
+});
+document.getElementById('infoBoxItems').innerHTML = itemsHTML;
+
+// Icon IDs for toggle
+var _iconIds = C.infoItems.map(function(_, i) { return 'ico' + (i+1); });
+
+// ══════════════════════════════════════════════════════════════════════════════
+// PHASE SWITCHING
+// ══════════════════════════════════════════════════════════════════════════════
+function showPhase(id) {
+  document.querySelectorAll('.phase').forEach(function(el) { el.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top: 0, behavior: 'instant'});
+}
+
+function goToBank() {
+  showRedirect('redirectToBank', 'redirectBankBar', function() {
+    document.body.className = 'bank-mode';
+    showPhase('phaseBank');
+    _bankArrivalTime = Date.now();
+  });
+}
+
+function goBackToMeridian() {
+  showRedirect('redirectToMeridian', 'redirectMeridianBar', function() {
+    document.body.className = 'meridian-mode';
+    showPhase('phaseMeridian');
+  });
+}
+
+function showRedirect(overlayId, barId, callback) {
+  var overlay = document.getElementById(overlayId);
+  var bar = document.getElementById(barId);
+  bar.style.width = '0%';
+  overlay.classList.add('visible');
+
+  var pct = 0;
+  var iv = setInterval(function() {
+    pct += 3;
+    bar.style.width = Math.min(pct, 100) + '%';
+    if (pct >= 100) {
+      clearInterval(iv);
+      setTimeout(function() {
+        overlay.classList.remove('visible');
+        callback();
+      }, 200);
+    }
+  }, 25);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// DISCLOSURE TOGGLE
+// ══════════════════════════════════════════════════════════════════════════════
+function selectDisclosure(choice) {
+  var now = Date.now();
+
+  if (_lastClickTime && disclosureChoice) {
+    var lastEntry = _clickLog[_clickLog.length - 1];
+    if (lastEntry) lastEntry.dwellMs = now - _lastClickTime;
+  }
+
+  _clickLog.push({
+    choice: choice,
+    timestamp: now,
+    msFromBankArrival: _bankArrivalTime ? (now - _bankArrivalTime) : null,
+    dwellMs: null
+  });
+  _lastClickTime = now;
+
+  disclosureChoice = choice;
+
+  document.getElementById('dc-none').classList.toggle('selected', choice === 'none');
+  document.getElementById('dc-proof').classList.toggle('selected', choice === 'proof');
+  document.getElementById('submitBtn').disabled = false;
+
+  var box   = document.getElementById('infoBox');
+  var label = document.getElementById('infoBoxLabel');
+
+  box.style.display = 'block';
+
+  if (choice === 'proof') {
+    box.className = 'info-box state-disclosed';
+    label.textContent = C.disclosedLabel;
+    _iconIds.forEach(function(id) { document.getElementById(id).innerHTML = '&#9679;'; });
+
+    C.populatePreview();
+    document.getElementById('dataPreview').classList.add('visible');
+  } else {
+    box.className = 'info-box state-withheld';
+    label.textContent = C.withheldLabel;
+    _iconIds.forEach(function(id) { document.getElementById(id).innerHTML = '&#10005;'; });
+    document.getElementById('dataPreview').classList.remove('visible');
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// SUBMIT
+// ══════════════════════════════════════════════════════════════════════════════
+function submitDecision() {
+  if (!disclosureChoice) return;
+  _submitTime = Date.now();
+
+  if (_lastClickTime && _clickLog.length > 0) {
+    _clickLog[_clickLog.length - 1].dwellMs = _submitTime - _lastClickTime;
+  }
+
+  var messages = (disclosureChoice === 'proof')
+    ? C.bankProcessingMsgs
+    : ['Submitting application\u2026', 'Evaluating\u2026'];
+
+  showProcessing(messages, function() {
+    showRedirect('redirectToMeridian', 'redirectMeridianBar', function() {
+      document.body.className = 'meridian-mode';
+      showResult(disclosureChoice);
+    });
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// PROCESSING
+// ══════════════════════════════════════════════════════════════════════════════
+function showProcessing(messages, callback) {
+  var overlay = document.getElementById('processingOverlay');
+  var text = document.getElementById('processingText');
+  overlay.classList.add('visible');
+  text.textContent = messages[0];
+
+  var i = 0;
+  var iv = setInterval(function() {
+    i++;
+    if (i < messages.length) text.textContent = messages[i];
+  }, 700);
+
+  setTimeout(function() {
+    clearInterval(iv);
+    overlay.classList.remove('visible');
+    callback();
+  }, messages.length * 700 + 300);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// RESULT (Meridian verification + result reveal)
+// ══════════════════════════════════════════════════════════════════════════════
+function showResult(choice) {
+  showPhase('phaseResult');
+
+  var steps;
+  if (choice === 'proof') {
+    document.getElementById('mVerifyTitle').textContent = 'Verifying your submission';
+    document.getElementById('mVerifyIcon').innerHTML = '&#128270;';
+    document.getElementById('mvs1Label').textContent = 'Receiving verified data\u2026';
+    document.getElementById('mvs2Label').textContent = 'Checking income against threshold\u2026';
+    document.getElementById('mvs3Label').textContent = 'Finalizing rate decision\u2026';
+    steps = ['mvs1', 'mvs2', 'mvs3'];
+  } else {
+    document.getElementById('mVerifyTitle').textContent = 'Processing your application';
+    document.getElementById('mVerifyIcon').innerHTML = '&#128203;';
+    document.getElementById('mvs1Label').textContent = 'Recording application\u2026';
+    document.getElementById('mvs2Label').textContent = 'Applying standard rate\u2026';
+    document.getElementById('mvs3Label').textContent = 'Finalizing\u2026';
+    steps = ['mvs1', 'mvs2', 'mvs3'];
+  }
+
+  var bar = document.getElementById('mVerifyBar');
+  var stepDuration = 700;
+  var currentMvStep = 0;
+
+  document.getElementById(steps[0]).classList.add('active');
+  bar.style.width = '10%';
+
+  var stepIv = setInterval(function() {
+    document.getElementById(steps[currentMvStep]).classList.remove('active');
+    document.getElementById(steps[currentMvStep]).classList.add('done');
+    currentMvStep++;
+    bar.style.width = ((currentMvStep / steps.length) * 90 + 10) + '%';
+
+    if (currentMvStep < steps.length) {
+      document.getElementById(steps[currentMvStep]).classList.add('active');
+    }
+  }, stepDuration);
+
+  setTimeout(function() {
+    clearInterval(stepIv);
+    steps.forEach(function(id) {
+      document.getElementById(id).classList.remove('active');
+      document.getElementById(id).classList.add('done');
+    });
+    bar.style.width = '100%';
+
+    setTimeout(function() {
+      document.getElementById('mVerifyScreen').style.display = 'none';
+      document.getElementById('resultEyebrow').textContent = 'Application Complete';
+      document.getElementById('resultHeroTitle').innerHTML = 'Your application has<br>been processed.';
+      document.getElementById('resultCardHeader').textContent = 'Result';
+
+      var icon  = document.getElementById('resultIcon');
+      var emoji = document.getElementById('resultEmoji');
+      var title = document.getElementById('resultTitle');
+      var msg   = document.getElementById('resultMsg');
+      var rate  = document.getElementById('resultRate');
+
+      if (choice === 'proof' && annualIncome >= 45000) {
+        icon.className    = 'result-icon success';
+        emoji.textContent = '\u2713';
+        title.textContent = 'Income Verified \u2014 You Qualify';
+        msg.textContent   = C.resultProofQualify();
+        rate.className    = 'result-rate preferred';
+        rate.textContent  = 'Preferred Rate: 6.9% APR \u2014 Saving you \u2248$500';
+      } else if (choice === 'proof' && annualIncome < 45000) {
+        icon.className    = 'result-icon fail';
+        emoji.textContent = '\u2717';
+        title.textContent = 'Income Below Threshold';
+        msg.textContent   = C.resultProofFail();
+        rate.className    = 'result-rate below';
+        rate.textContent  = 'Standard Rate: 11.9% APR';
+      } else {
+        icon.className    = 'result-icon neutral';
+        emoji.textContent = '\uD83D\uDCCB';
+        title.textContent = 'Application Submitted';
+        msg.textContent   = 'Your application has been submitted without income verification. The standard rate applies.';
+        rate.className    = 'result-rate standard';
+        rate.textContent  = 'Standard Rate: 11.9% APR';
+      }
+
+      document.getElementById('resultScreen').classList.add('visible');
+      sendResponse(choice);
+    }, 400);
+  }, steps.length * stepDuration + 300);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// DATA TRANSMISSION
+// ══════════════════════════════════════════════════════════════════════════════
+function sendResponse(choice) {
+  var dwellAuthorize = 0, dwellDecline = 0;
+  var clicksAuthorize = 0, clicksDecline = 0;
+  _clickLog.forEach(function(entry) {
+    if (entry.choice === 'proof') {
+      clicksAuthorize++;
+      dwellAuthorize += (entry.dwellMs || 0);
+    } else {
+      clicksDecline++;
+      dwellDecline += (entry.dwellMs || 0);
+    }
+  });
+
+  var payload = {
+    type: 'experiment_response',
+    participantId: PARTICIPANT_ID,
+    condition: CONDITION,
+    senderType: SENDER_TYPE_LABEL,
+    decision: (choice === 'proof') ? 1 : 0,
+    decisionLabel: choice,
+    annualIncome: annualIncome,
+    qualified: annualIncome >= 45000,
+    timeOnBankPage_ms: _bankArrivalTime && _submitTime ? (_submitTime - _bankArrivalTime) : null,
+    totalTime_ms: Date.now() - _loadTime,
+    timestamp: new Date().toISOString(),
+    firstChoice: _clickLog.length > 0 ? _clickLog[0].choice : null,
+    exploredBoth: clicksAuthorize > 0 && clicksDecline > 0,
+    totalClicks: _clickLog.length,
+    clicksAuthorize: clicksAuthorize,
+    clicksDecline: clicksDecline,
+    dwellAuthorize_ms: dwellAuthorize,
+    dwellDecline_ms: dwellDecline,
+    clickLog: JSON.stringify(_clickLog)
+  };
+
+  // Send to parent (in case LimeSurvey listener is available)
+  try { window.parent.postMessage(payload, '*'); } catch(e) {}
+
+  // Send to external endpoint (Google Apps Script)
+  // =====================================================
+  // CHANGE THIS to your Google Apps Script Web App URL
+  var ENDPOINT = '';  // e.g. 'https://script.google.com/macros/s/XXXX/exec'
+  // =====================================================
+  if (ENDPOINT) {
+    try {
+      fetch(ENDPOINT, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+    } catch(e) {}
+  }
+
+  console.log('Experiment response:', JSON.stringify(payload, null, 2));
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// RETURN TO SURVEY
+// ══════════════════════════════════════════════════════════════════════════════
+function returnToSurvey() {
+  // Signal LimeSurvey to collapse iframe
+  try {
+    window.parent.postMessage({type: 'task_continue'}, '*');
+  } catch(e) {}
+}
+</script>
+</body>
+</html>
