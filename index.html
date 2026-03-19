@@ -129,7 +129,7 @@
     margin: 0 auto 80px;
     background: var(--white);
     border: 1px solid var(--border);
-    border-radius: 2px;
+    border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 4px 40px rgba(0,0,0,0.06);
     position: relative;
@@ -139,6 +139,7 @@
   .m-card-header {
     background: var(--ink);
     padding: 28px 48px;
+    border-radius: 12px 12px 0 0;
   }
 
   .m-card-header h2 {
@@ -169,7 +170,7 @@
     border: 1px solid var(--border);
     padding: 24px;
     margin-bottom: 28px;
-    border-radius: 1px;
+    border-radius: 8px;
   }
 
   .lc-row {
@@ -230,7 +231,7 @@
     max-width: 700px;
     max-height: 90vh;
     background: var(--bank-bg);
-    border-radius: 4px;
+    border-radius: 2px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -597,12 +598,14 @@
     background: transparent;
     color: var(--bank-muted);
     border: 1px solid var(--bank-border);
+    border-radius: 2px;
   }
   .btn-ghost:hover { color: var(--bank-blue); border-color: var(--bank-blue); }
 
   .btn-bank {
     background: var(--bank-blue);
     color: #ffffff;
+    border-radius: 2px;
   }
   .btn-bank:hover { background: #15304d; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(26,58,92,0.3); }
   .btn-bank:disabled { background: #a0aab5; cursor: not-allowed; transform: none; box-shadow: none; }
@@ -610,6 +613,7 @@
   .btn-gold {
     background: var(--gold);
     color: var(--ink);
+    border-radius: 24px;
   }
   .btn-gold:hover { background: #b8973d; transform: translateY(-1px); }
 
@@ -653,7 +657,7 @@
     font-size: 13px;
     letter-spacing: 0.06em;
     padding: 8px 20px;
-    border-radius: 2px;
+    border-radius: 20px;
     display: inline-block;
     margin-bottom: 24px;
   }
@@ -670,7 +674,7 @@
     background: var(--gold);
     color: var(--ink);
     border: none;
-    border-radius: 1px;
+    border-radius: 24px;
     cursor: pointer;
     transition: all 0.2s;
   }
@@ -914,7 +918,7 @@
         <div class="lc-divider"></div>
         <div class="lc-row">
           <span class="lc-label">Income Threshold for Preferred Rate</span>
-          <span class="lc-value">$45,000 / year</span>
+          <span class="lc-value">$3,750 / month</span>
         </div>
         <div class="lc-divider"></div>
         <div class="lc-row">
@@ -1012,7 +1016,7 @@
         <div>
           <div class="requester-name">Meridian Credit</div>
           <div class="requester-purpose">Requesting income verification for preferred rate on a $10,000 personal loan</div>
-          <div class="requester-claim">Claim to verify: Annual income &ge; $45,000</div>
+          <div class="requester-claim">Claim to verify: Monthly income &ge; $3,750</div>
         </div>
       </div>
 
@@ -1083,9 +1087,9 @@ var _lastClickTime = null;
 
 // ── Type-dependent data ─────────────────────────────────────────────────────
 var monthlySalary  = (SENDER_TYPE_LABEL === 'high') ? 5611.83 : 2682.17;
-var annualIncome   = (SENDER_TYPE_LABEL === 'high') ? 67342 : 32186;
+var monthlyIncome  = (SENDER_TYPE_LABEL === 'high') ? 5612 : 2682;
 var accountBalance = (SENDER_TYPE_LABEL === 'high') ? 12847.63 : 4213.28;
-var meetsThreshold = annualIncome >= 45000;
+var meetsThreshold = monthlyIncome >= 3750;
 
 function fmtUSD(n) {
   return '$' + Math.abs(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
@@ -1135,30 +1139,30 @@ var CONDITIONS = {
         '</div>';
       });
 
-      return '<div class="preview-section-label">Account Balance</div>' +
-        '<div class="preview-row"><span>Current Balance</span><span class="preview-row-value">' + balanceFormatted + '</span></div>' +
+      return '<div class="preview-section-label">Verified Information</div>' +
+        '<div class="preview-row"><span>Monthly Income</span><span class="preview-row-value">$' + monthlyIncome.toLocaleString('en-US') + '</span></div>' +
+        '<div class="preview-section-label" style="margin-top:16px;">Source of Verification</div>' +
+        '<div class="preview-source"><span style="color:var(--bank-green);">&#10003;</span> Income derived from payroll deposits in the bank statement below</div>' +
         '<div class="preview-section-label" style="margin-top:16px;">Transactions \u2014 Last 30 Days</div>' +
         txHTML +
-        '<div class="preview-section-label" style="margin-top:16px;">Source of Verification</div>' +
-        '<div class="preview-source"><span style="color:var(--bank-green);">&#10003;</span> Income derived from payroll deposits in the bank statement above</div>' +
-        '<div class="preview-shared-box shared"><strong>All of the above data will be shared with Meridian Credit,</strong> including your balance, every transaction with recipients and amounts, and your employer name from payroll deposits.</div>';
+        '<div class="preview-shared-box shared" style="margin-top:16px;"><strong>All of the above data,</strong> including your balance, payroll details, and every listed transaction, will be shared with Meridian Credit for income verification and underwriting purposes.</div>';
     },
     bankProcessingMsgs: ['Sharing account data\u2026', 'Transmitting to Meridian\u2026', 'Evaluating application\u2026'],
     resultProofQualify: function() {
-      return 'Your bank account data has been reviewed. Your annual income of $' + annualIncome.toLocaleString('en-US') + ' meets the $45,000 threshold. You qualify for the preferred rate.';
+      return 'Your bank account data has been reviewed. Your monthly income of $' + monthlyIncome.toLocaleString('en-US') + ' meets the $3,750 threshold. You qualify for the preferred rate.';
     },
     resultProofFail: function() {
-      return 'Your bank account data has been reviewed. Your annual income of $' + annualIncome.toLocaleString('en-US') + ' is below the $45,000 threshold. The standard rate applies.';
+      return 'Your bank account data has been reviewed. Your monthly income of $' + monthlyIncome.toLocaleString('en-US') + ' is below the $3,750 threshold. The standard rate applies.';
     }
   },
 
   exact_zkp: {
-    bankDesc: 'Meridian Credit is requesting income verification. Your bank will use a secure digital verification system to confirm your exact annual income. Only the income figure is transmitted.',
+    bankDesc: 'Meridian Credit is requesting income verification. Your bank will use a secure digital verification system to confirm your exact monthly income. Only the income figure is transmitted.',
     declineDesc: 'Do not proceed with income verification. Your loan application will proceed at the standard rate (approximately $500 more).',
     authorizeDesc: 'Allow your bank to generate a proof of your exact income using a secure digital verification system. Only the income figure is shared with Meridian Credit.',
     infoBoxLabel: 'Data Meridian Credit will receive',
     infoItems: [
-      'Your exact annual income figure',
+      'Your exact monthly income figure',
       'Cryptographic confirmation that this figure comes from a verified bank record'
     ],
     disclosedLabel: 'The following will be shared with Meridian Credit',
@@ -1166,8 +1170,8 @@ var CONDITIONS = {
     dataPreviewHeader: 'Preview: data that will be transmitted to Meridian Credit',
     declinePreviewHeader: 'Preview: data that will NOT be transmitted to Meridian Credit',
     previewSectionLabel: 'Verified Information',
-    previewRowLabel: 'Annual Income',
-    previewRowValueFn: function() { return '$' + annualIncome.toLocaleString('en-US'); },
+    previewRowLabel: 'Monthly Income',
+    previewRowValueFn: function() { return '$' + monthlyIncome.toLocaleString('en-US'); },
     previewSourceLabel: 'Cryptographic Confirmation',
     previewSource: 'Income figure derived from verified payroll records at First National Bank',
     previewBoxType: 'not-shared',
@@ -1175,20 +1179,20 @@ var CONDITIONS = {
     previewBoxText: 'your account balance, transaction history, employer name, payment recipients, or any other account details.',
     bankProcessingMsgs: ['Generating proof\u2026', 'Deriving income from records\u2026', 'Transmitting proof to Meridian\u2026'],
     resultProofQualify: function() {
-      return 'Your annual income of $' + annualIncome.toLocaleString('en-US') + ' has been verified through secure digital verification. You qualify for the preferred rate.';
+      return 'Your monthly income of $' + monthlyIncome.toLocaleString('en-US') + ' has been verified through secure digital verification. You qualify for the preferred rate.';
     },
     resultProofFail: function() {
-      return 'Your annual income of $' + annualIncome.toLocaleString('en-US') + ' has been verified through secure digital verification. It is below the $45,000 threshold. The standard rate applies.';
+      return 'Your monthly income of $' + monthlyIncome.toLocaleString('en-US') + ' has been verified through secure digital verification. It is below the $3,750 threshold. The standard rate applies.';
     }
   },
 
   threshold_zkp: {
-    bankDesc: 'Meridian Credit is requesting income verification. Your bank will use a secure digital verification system to confirm whether your income meets the $45,000 threshold. Only a Yes or No answer is transmitted.',
+    bankDesc: 'Meridian Credit is requesting income verification. Your bank will use a secure digital verification system to confirm whether your income meets the $3,750 threshold. Only a Yes or No answer is transmitted.',
     declineDesc: 'Do not proceed with income verification. Your loan application will proceed at the standard rate (approximately $500 more).',
-    authorizeDesc: 'Allow your bank to generate a proof of whether your income meets the $45,000 threshold using a secure digital verification system. Only a Yes or No answer is shared with Meridian Credit.',
+    authorizeDesc: 'Allow your bank to generate a proof of whether your income meets the $3,750 threshold using a secure digital verification system. Only a Yes or No answer is shared with Meridian Credit.',
     infoBoxLabel: 'Data Meridian Credit will receive',
     infoItems: [
-      'Whether your annual income is at least $45,000 (Yes or No)',
+      'Whether your monthly income is at least $3,750 (Yes or No)',
       'Cryptographic confirmation that this answer comes from a verified bank record'
     ],
     disclosedLabel: 'The following will be shared with Meridian Credit',
@@ -1196,7 +1200,7 @@ var CONDITIONS = {
     dataPreviewHeader: 'Preview: result that will be transmitted to Meridian Credit',
     declinePreviewHeader: 'Preview: result that will NOT be transmitted to Meridian Credit',
     previewSectionLabel: 'Threshold Verification',
-    previewRowLabel: 'Annual income \u2265 $45,000?',
+    previewRowLabel: 'Monthly income \u2265 $3,750?',
     previewRowValueFn: function() {
       if (meetsThreshold) return '\u2713 Yes';
       return '\u2717 No';
@@ -1209,10 +1213,10 @@ var CONDITIONS = {
     previewBoxText: 'your exact income amount, account balance, transaction history, employer name, payment recipients, or any other account details.',
     bankProcessingMsgs: ['Generating proof\u2026', 'Checking threshold against records\u2026', 'Transmitting proof to Meridian\u2026'],
     resultProofQualify: function() {
-      return 'Secure digital verification confirmed that your income meets the $45,000 threshold. You qualify for the preferred rate. Your exact income was not disclosed.';
+      return 'Secure digital verification confirmed that your income meets the $3,750 threshold. You qualify for the preferred rate. Your exact income was not disclosed.';
     },
     resultProofFail: function() {
-      return 'Secure digital verification confirmed that your income does not meet the $45,000 threshold. The standard rate applies. Your exact income was not disclosed.';
+      return 'Secure digital verification confirmed that your income does not meet the $3,750 threshold. The standard rate applies. Your exact income was not disclosed.';
     }
   }
 };
@@ -1427,14 +1431,14 @@ function showResult(choice) {
       var msg   = document.getElementById('resultMsg');
       var rate  = document.getElementById('resultRate');
 
-      if (choice === 'proof' && annualIncome >= 45000) {
+      if (choice === 'proof' && monthlyIncome >= 3750) {
         icon.className    = 'result-icon success';
         emoji.textContent = '\u2713';
         title.textContent = 'Income Verified \u2014 You Qualify';
         msg.textContent   = C.resultProofQualify();
         rate.className    = 'result-rate preferred';
         rate.textContent  = 'Preferred Rate: 6.9% APR \u2014 Saving you \u2248$500';
-      } else if (choice === 'proof' && annualIncome < 45000) {
+      } else if (choice === 'proof' && monthlyIncome < 3750) {
         icon.className    = 'result-icon fail';
         emoji.textContent = '\u2717';
         title.textContent = 'Income Below Threshold';
@@ -1479,8 +1483,8 @@ function sendResponse(choice) {
     senderType: SENDER_TYPE_LABEL,
     decision: (choice === 'proof') ? 1 : 0,
     decisionLabel: choice,
-    annualIncome: annualIncome,
-    qualified: annualIncome >= 45000,
+    monthlyIncome: monthlyIncome,
+    qualified: monthlyIncome >= 3750,
     timeOnBankPage_ms: _bankArrivalTime && _submitTime ? (_submitTime - _bankArrivalTime) : null,
     totalTime_ms: Date.now() - _loadTime,
     timestamp: new Date().toISOString(),
