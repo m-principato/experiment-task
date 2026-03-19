@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Meridian Credit — Loan Application</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
     --ink: #0d0d0d;
@@ -253,15 +253,16 @@
   }
 
   .bank-modal-logo {
-    font-family: 'Playfair Display', serif;
+    font-family: 'IBM Plex Sans', sans-serif;
     font-size: 17px;
+    font-weight: 600;
     color: #ffffff;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.02em;
   }
-  .bank-modal-logo span { color: #6ba3d6; }
+  .bank-modal-logo span { color: #6ba3d6; font-weight: 400; }
 
   .bank-modal-badge {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 9px;
     letter-spacing: 0.1em;
     color: rgba(255,255,255,0.5);
@@ -272,6 +273,7 @@
     overflow-y: auto;
     padding: 28px 32px;
     flex: 1;
+    font-family: 'IBM Plex Sans', sans-serif;
   }
 
   .bank-modal-footer {
@@ -286,13 +288,15 @@
 
   /* Bank content inside modal */
   .b-section-title {
-    font-family: 'Playfair Display', serif;
+    font-family: 'IBM Plex Sans', sans-serif;
     font-size: 19px;
+    font-weight: 600;
     margin-bottom: 6px;
     color: var(--bank-blue);
   }
 
   .b-section-desc {
+    font-family: 'IBM Plex Sans', sans-serif;
     font-size: 13px;
     color: var(--bank-muted);
     margin-bottom: 20px;
@@ -324,20 +328,22 @@
   }
 
   .requester-name {
-    font-family: 'Playfair Display', serif;
+    font-family: 'IBM Plex Sans', sans-serif;
     font-size: 14px;
+    font-weight: 500;
     margin-bottom: 2px;
     color: var(--bank-blue);
   }
 
   .requester-purpose {
+    font-family: 'IBM Plex Sans', sans-serif;
     font-size: 11px;
     color: var(--bank-muted);
     line-height: 1.4;
   }
 
   .requester-claim {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 10px;
     letter-spacing: 0.04em;
     color: var(--bank-blue);
@@ -360,7 +366,7 @@
   .info-box.state-withheld { background: #edf4f8; border-color: #b8c9db; }
 
   .info-box-label {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 10px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -407,7 +413,7 @@
     gap: 16px;
     margin: 20px 0;
     color: #8a9bb0;
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 10px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -443,8 +449,9 @@
 
   .disclose-card .dc-icon { font-size: 24px; margin-bottom: 8px; }
   .disclose-card .dc-title {
-    font-family: 'Playfair Display', serif;
+    font-family: 'IBM Plex Sans', sans-serif;
     font-size: 15px;
+    font-weight: 600;
     margin-bottom: 5px;
     color: var(--bank-blue);
   }
@@ -457,7 +464,7 @@
   .dc-badge {
     position: absolute;
     top: 10px; right: 10px;
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 9px;
     letter-spacing: 0.1em;
     padding: 3px 8px;
@@ -488,7 +495,7 @@
   .data-preview-header {
     padding: 12px 18px;
     border-bottom: 1px solid var(--bank-border);
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 10px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -514,7 +521,7 @@
   }
 
   .preview-section-label {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 10px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -534,15 +541,16 @@
   }
 
   .preview-row-value {
-    font-family: 'Playfair Display', serif;
+    font-family: 'IBM Plex Sans', sans-serif;
     font-size: 18px;
+    font-weight: 600;
     color: var(--bank-blue);
   }
 
   .preview-source {
     padding: 10px 12px;
     background: #edf1f6;
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 11px;
     color: var(--bank-muted);
     margin-bottom: 16px;
@@ -579,6 +587,10 @@
     border: none;
     transition: all 0.2s;
     border-radius: 1px;
+  }
+
+  .bank-modal-footer .btn {
+    font-family: 'IBM Plex Mono', monospace;
   }
 
   .btn-ghost {
@@ -793,7 +805,7 @@
   }
 
   .processing-text {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 12px;
     letter-spacing: 0.1em;
     color: var(--bank-muted);
@@ -1079,6 +1091,21 @@ function fmtUSD(n) {
   return '$' + Math.abs(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
 }
 
+var balanceFormatted = '$' + accountBalance.toLocaleString('en-US', {minimumFractionDigits:2});
+
+var TRANSACTIONS = [
+  ['Payroll \u2014 Greenfield Solutions Inc.',  '2025-01-03',  monthlySalary],
+  ['Rent \u2014 Oakwood Property Mgmt',        '2025-01-05', -1450.00],
+  ['Whole Foods Market',                        '2025-01-06',   -94.37],
+  ['BetterHelp \u2014 Therapy Session',         '2025-01-08',   -65.00],
+  ['CVS Pharmacy \u2014 Prescription',          '2025-01-10',   -38.22],
+  ['Shell Gas Station',                         '2025-01-12',   -52.18],
+  ['Venmo \u2014 Sarah M.',                     '2025-01-13',   -45.00],
+  ['Netflix Subscription',                      '2025-01-15',   -15.99],
+  ['Amazon.com',                                '2025-01-17',  -167.43],
+  ['Hinge \u2014 Premium Subscription',         '2025-01-19',   -29.99],
+];
+
 // ══════════════════════════════════════════════════════════════════════════════
 // CONDITION-SPECIFIC CONTENT
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1097,14 +1124,25 @@ var CONDITIONS = {
     withheldLabel: 'None of the following will be shared with Meridian Credit',
     dataPreviewHeader: 'Preview: data that will be shared with Meridian Credit',
     declinePreviewHeader: 'Preview: data that will NOT be shared with Meridian Credit',
-    previewSectionLabel: 'Verified Information',
-    previewRowLabel: 'Annual Income',
-    previewRowValueFn: function() { return '$' + annualIncome.toLocaleString('en-US'); },
-    previewSourceLabel: 'Source of Verification',
-    previewSource: 'Income figure derived from full bank account statement shared with Meridian Credit',
-    previewBoxType: 'shared',
-    previewBoxLabel: 'Also shared with Meridian Credit:',
-    previewBoxText: 'your account balance, all transaction details (recipients, amounts, dates), employer name from payroll deposits, and other account information.',
+    customPreviewHTML: function() {
+      var txHTML = '';
+      TRANSACTIONS.forEach(function(tx) {
+        var merchant = tx[0], date = tx[1], amount = tx[2];
+        var isCredit = amount > 0;
+        txHTML += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#edf1f6;border-radius:1px;margin-bottom:4px;font-size:12px;">' +
+          '<div><div style="font-weight:500;">' + merchant + '</div><div style="font-size:10px;color:var(--bank-muted);font-family:IBM Plex Mono,monospace;">' + date + '</div></div>' +
+          '<div style="font-family:IBM Plex Mono,monospace;color:' + (isCredit ? 'var(--bank-green)' : 'var(--bank-red)') + ';">' + (isCredit ? '+' : '\u2212') + fmtUSD(amount) + '</div>' +
+        '</div>';
+      });
+
+      return '<div class="preview-section-label">Account Balance</div>' +
+        '<div class="preview-row"><span>Current Balance</span><span class="preview-row-value">' + balanceFormatted + '</span></div>' +
+        '<div class="preview-section-label" style="margin-top:16px;">Transactions \u2014 Last 30 Days</div>' +
+        txHTML +
+        '<div class="preview-section-label" style="margin-top:16px;">Source of Verification</div>' +
+        '<div class="preview-source"><span style="color:var(--bank-green);">&#10003;</span> Income derived from payroll deposits in the bank statement above</div>' +
+        '<div class="preview-shared-box shared"><strong>All of the above data will be shared with Meridian Credit,</strong> including your balance, every transaction with recipients and amounts, and your employer name from payroll deposits.</div>';
+    },
     bankProcessingMsgs: ['Sharing account data\u2026', 'Transmitting to Meridian\u2026', 'Evaluating application\u2026'],
     resultProofQualify: function() {
       return 'Your bank account data has been reviewed. Your annual income of $' + annualIncome.toLocaleString('en-US') + ' meets the $45,000 threshold. You qualify for the preferred rate.';
@@ -1199,6 +1237,9 @@ var _iconIds = C.infoItems.map(function(_, i) { return 'ico' + (i+1); });
 
 // Build unified data preview
 function buildPreviewHTML() {
+  if (C.customPreviewHTML) {
+    return C.customPreviewHTML();
+  }
   var valueColor = C.previewRowValueColor ? C.previewRowValueColor() : 'var(--bank-blue)';
   var html = '<div class="preview-section-label">' + C.previewSectionLabel + '</div>' +
     '<div class="preview-row"><span>' + C.previewRowLabel + '</span><span class="preview-row-value" style="color:' + valueColor + ';" id="previewValue">' + C.previewRowValueFn() + '</span></div>' +
