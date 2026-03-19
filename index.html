@@ -128,6 +128,11 @@
     font-weight: 400;
   }
 
+  .m-highlight {
+    background: linear-gradient(to top, rgba(201,168,76,0.25) 0%, rgba(201,168,76,0.25) 40%, transparent 40%);
+    padding: 0 2px;
+  }
+
   .m-card {
     max-width: 680px;
     margin: 0 auto 80px;
@@ -555,21 +560,68 @@
     border-radius: 1px;
     overflow: hidden;
     margin-bottom: 24px;
+    transition: border-color 0.3s;
   }
   .data-preview.visible { display: block; animation: rise 0.35s ease both; }
 
+  .data-preview.state-authorize {
+    border-left: 4px solid var(--bank-blue);
+  }
+  .data-preview.state-decline {
+    border-left: 4px solid var(--bank-muted);
+  }
+
   .data-preview-header {
-    background: var(--bank-blue-light);
     padding: 14px 20px;
     border-bottom: 1px solid var(--bank-border);
     font-family: 'DM Mono', monospace;
     font-size: 10px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  .state-authorize .data-preview-header {
+    background: var(--bank-blue-light);
     color: var(--bank-blue);
   }
 
-  .data-preview-body { padding: 20px; }
+  .state-decline .data-preview-header {
+    background: #f2f0ed;
+    color: var(--bank-muted);
+  }
+
+  .data-preview-status {
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  .data-preview-body {
+    padding: 20px;
+    transition: opacity 0.3s;
+    position: relative;
+  }
+
+  .state-decline .data-preview-body {
+    opacity: 0.4;
+  }
+
+  .state-decline .data-preview-body::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 8px,
+      rgba(107,96,77,0.06) 8px,
+      rgba(107,96,77,0.06) 9px
+    );
+    pointer-events: none;
+  }
 
   .stmt-balance-row {
     display: flex;
@@ -1033,7 +1085,7 @@
   <div class="m-hero">
     <div class="m-eyebrow">Personal Loan Application</div>
     <h1>Better rates start with<br>better information.</h1>
-    <p class="m-subtitle">Apply for a personal loan with Meridian Credit. Verify your income to unlock a preferred rate that could <strong>save you approximately $500</strong> over the life of your loan.</p>
+    <p class="m-subtitle">Apply for a personal loan with Meridian Credit. Verify your income to unlock a preferred rate that could <span class="m-highlight">save you approximately $500</span> over the life of your loan.</p>
   </div>
 
   <div class="m-card">
@@ -1141,7 +1193,7 @@
 
       <!-- Data preview (visible when Authorize selected) -->
       <div class="data-preview" id="dataPreview">
-        <div class="data-preview-header" id="dataPreviewHeader"></div>
+        <div class="data-preview-header"><span class="data-preview-status" id="dataPreviewStatus"></span><span id="dataPreviewHeader"></span></div>
         <div class="data-preview-body" id="dataPreviewBody"></div>
       </div>
 
@@ -1518,24 +1570,31 @@ function selectDisclosure(choice) {
 
   var box   = document.getElementById('infoBox');
   var label = document.getElementById('infoBoxLabel');
+  var preview = document.getElementById('dataPreview');
+  var status = document.getElementById('dataPreviewStatus');
 
   box.style.display = 'block';
 
   C.populatePreview();
-  document.getElementById('dataPreview').classList.add('visible');
+  preview.classList.add('visible');
+  preview.classList.remove('state-authorize', 'state-decline');
 
   if (choice === 'proof') {
     box.className = 'info-box state-disclosed';
     label.textContent = C.disclosedLabel;
     _iconIds.forEach(function(id) { document.getElementById(id).innerHTML = '&#9679;'; });
     document.getElementById('dataPreviewHeader').textContent = C.dataPreviewHeader;
-    document.getElementById('dataPreview').style.opacity = '1';
+    status.textContent = '\u2713';
+    status.style.color = 'var(--bank-blue)';
+    preview.classList.add('state-authorize');
   } else {
     box.className = 'info-box state-withheld';
     label.textContent = C.withheldLabel;
     _iconIds.forEach(function(id) { document.getElementById(id).innerHTML = '&#10005;'; });
     document.getElementById('dataPreviewHeader').textContent = C.declinePreviewHeader;
-    document.getElementById('dataPreview').style.opacity = '0.5';
+    status.textContent = '\u2717';
+    status.style.color = 'var(--bank-muted)';
+    preview.classList.add('state-decline');
   }
 }
 
