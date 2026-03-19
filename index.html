@@ -35,7 +35,10 @@
     font-family: 'DM Sans', sans-serif;
     font-weight: 300;
     min-height: 100vh;
-    transition: background 0.4s ease;
+    background: var(--paper);
+    background-image:
+      radial-gradient(ellipse at 80% 0%, rgba(201,168,76,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse at 20% 100%, rgba(74,103,65,0.06) 0%, transparent 50%);
   }
 
   body::before {
@@ -44,7 +47,7 @@
     inset: 0;
     pointer-events: none;
     z-index: 0;
-    transition: opacity 0.4s ease;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
   }
 
   /* ── PHASE VISIBILITY ── */
@@ -52,20 +55,8 @@
   .phase.active { display: block; }
 
   /* ══════════════════════════════════════════════════════════════
-     MERIDIAN PHASE STYLES (warm)
+     MERIDIAN STYLES
      ══════════════════════════════════════════════════════════════ */
-  body.meridian-mode {
-    background: var(--paper);
-    background-image:
-      radial-gradient(ellipse at 80% 0%, rgba(201,168,76,0.08) 0%, transparent 60%),
-      radial-gradient(ellipse at 20% 100%, rgba(74,103,65,0.06) 0%, transparent 50%);
-  }
-
-  body.meridian-mode::before {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
-    opacity: 1;
-  }
-
   .m-header {
     display: flex;
     justify-content: space-between;
@@ -157,9 +148,7 @@
     font-weight: 400;
   }
 
-  .m-card-body {
-    padding: 44px 48px;
-  }
+  .m-card-body { padding: 44px 48px; }
 
   .section-title {
     font-family: 'Playfair Display', serif;
@@ -209,149 +198,120 @@
     margin: 8px 0;
   }
 
-  /* ══════════════════════════════════════════════════════════════
-     BANK PHASE STYLES (cool)
-     ══════════════════════════════════════════════════════════════ */
-  body.bank-mode {
-    background: var(--bank-bg);
-    background-image:
-      radial-gradient(ellipse at 80% 0%, rgba(26,58,92,0.06) 0%, transparent 60%),
-      radial-gradient(ellipse at 20% 100%, rgba(44,111,170,0.04) 0%, transparent 50%);
+  .m-btn-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
   }
 
-  body.bank-mode::before { opacity: 0; }
+  /* ══════════════════════════════════════════════════════════════
+     BANK MODAL (popup over Meridian)
+     ══════════════════════════════════════════════════════════════ */
+  .bank-modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(13,13,13,0.5);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(3px);
+  }
+  .bank-modal-backdrop.visible {
+    display: flex;
+    animation: fadeIn 0.3s ease;
+  }
 
-  .b-header {
+  .bank-modal {
+    position: relative;
+    width: 90%;
+    max-width: 700px;
+    max-height: 90vh;
+    background: var(--bank-bg);
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 80px rgba(0,0,0,0.25);
+    animation: modalRise 0.35s ease both;
+  }
+
+  @keyframes modalRise {
+    from { opacity: 0; transform: translateY(30px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .bank-modal-header {
+    background: var(--bank-blue);
+    padding: 16px 28px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 56px;
-    background: var(--bank-blue);
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-    position: relative;
-    z-index: 1;
+    flex-shrink: 0;
   }
 
-  .b-logo {
+  .bank-modal-logo {
     font-family: 'Playfair Display', serif;
-    font-size: 20px;
+    font-size: 17px;
     color: #ffffff;
     letter-spacing: 0.03em;
   }
-  .b-logo span { color: #6ba3d6; }
+  .bank-modal-logo span { color: #6ba3d6; }
 
-  .b-nav {
-    display: flex;
-    gap: 32px;
-    font-size: 12px;
-    letter-spacing: 0.06em;
-    color: rgba(255,255,255,0.45);
+  .bank-modal-badge {
     font-family: 'DM Mono', monospace;
-  }
-  .b-nav a { color: rgba(255,255,255,0.45); text-decoration: none; }
-
-  .b-hero {
-    max-width: 760px;
-    margin: 0 auto;
-    padding: 48px 24px 0;
-    text-align: center;
-    position: relative;
-    z-index: 1;
-  }
-
-  .b-eyebrow {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.16em;
-    color: var(--bank-accent);
-    text-transform: uppercase;
-    margin-bottom: 16px;
-  }
-
-  .b-hero h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(28px, 4vw, 42px);
-    line-height: 1.2;
-    font-weight: 700;
-    color: var(--bank-blue);
-    margin-bottom: 16px;
-  }
-
-  .b-subtitle {
-    font-size: 14px;
-    color: var(--bank-muted);
-    line-height: 1.7;
-    max-width: 500px;
-    margin: 0 auto 36px;
-  }
-
-  .b-card {
-    max-width: 680px;
-    margin: 0 auto 80px;
-    background: var(--bank-card);
-    border: 1px solid var(--bank-border);
-    border-radius: 2px;
-    overflow: hidden;
-    box-shadow: 0 4px 40px rgba(26,58,92,0.08);
-    position: relative;
-    z-index: 1;
-  }
-
-  .b-card-header {
-    background: var(--bank-blue);
-    padding: 24px 48px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .b-card-header h2 {
-    font-family: 'Playfair Display', serif;
-    color: #ffffff;
-    font-size: 18px;
-    font-weight: 400;
-  }
-
-  .b-card-header .b-card-badge {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
+    font-size: 9px;
     letter-spacing: 0.1em;
     color: rgba(255,255,255,0.5);
     text-transform: uppercase;
   }
 
-  .b-card-body {
-    padding: 36px 48px;
+  .bank-modal-body {
+    overflow-y: auto;
+    padding: 28px 32px;
+    flex: 1;
   }
 
+  .bank-modal-footer {
+    padding: 16px 28px;
+    border-top: 1px solid var(--bank-border);
+    background: var(--bank-card);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  /* Bank content inside modal */
   .b-section-title {
     font-family: 'Playfair Display', serif;
     font-size: 19px;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     color: var(--bank-blue);
   }
 
   .b-section-desc {
     font-size: 13px;
     color: var(--bank-muted);
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     line-height: 1.6;
   }
 
-  /* Requester box */
   .requester-box {
     background: var(--bank-blue-light);
     border: 1px solid #b8c9db;
-    padding: 18px 22px;
+    padding: 16px 20px;
     border-radius: 1px;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 14px;
   }
 
   .requester-icon {
-    width: 44px; height: 44px;
+    width: 40px; height: 40px;
     background: var(--ink);
     border-radius: 50%;
     display: flex;
@@ -359,93 +319,52 @@
     justify-content: center;
     color: var(--gold);
     font-family: 'Playfair Display', serif;
-    font-size: 18px;
+    font-size: 16px;
     flex-shrink: 0;
   }
 
   .requester-name {
     font-family: 'Playfair Display', serif;
-    font-size: 15px;
+    font-size: 14px;
     margin-bottom: 2px;
     color: var(--bank-blue);
   }
 
   .requester-purpose {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--bank-muted);
     line-height: 1.4;
   }
 
   .requester-claim {
     font-family: 'DM Mono', monospace;
-    font-size: 11px;
+    font-size: 10px;
     letter-spacing: 0.04em;
     color: var(--bank-blue);
-    margin-top: 6px;
-    padding-top: 6px;
+    margin-top: 5px;
+    padding-top: 5px;
     border-top: 1px solid #d5dde6;
   }
 
-  /* Verification target */
-  .verify-target {
-    background: var(--bank-blue-light);
-    border: 1px dashed #b8c9db;
-    padding: 14px 20px;
-    border-radius: 1px;
-    margin-bottom: 24px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-
-  .verify-target-icon {
-    font-size: 20px;
-    flex-shrink: 0;
-  }
-
-  .verify-target-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--bank-muted);
-    margin-bottom: 3px;
-  }
-
-  .verify-target-claim {
-    font-family: 'Playfair Display', serif;
-    font-size: 16px;
-    color: var(--bank-blue);
-  }
-
-  /* Reactive info box */
+  /* Info box */
   .info-box {
     border: 1px solid var(--bank-border);
-    padding: 20px 22px;
+    padding: 18px 20px;
     border-radius: 1px;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     transition: all 0.3s ease;
   }
 
-  .info-box.state-neutral {
-    background: var(--bank-blue-light);
-    border-color: #b8c9db;
-  }
-  .info-box.state-disclosed {
-    background: var(--bank-blue-light);
-    border-color: #b8c9db;
-  }
-  .info-box.state-withheld {
-    background: #edf4f8;
-    border-color: #b8c9db;
-  }
+  .info-box.state-neutral { background: var(--bank-blue-light); border-color: #b8c9db; }
+  .info-box.state-disclosed { background: var(--bank-blue-light); border-color: #b8c9db; }
+  .info-box.state-withheld { background: #edf4f8; border-color: #b8c9db; }
 
   .info-box-label {
     font-family: 'DM Mono', monospace;
     font-size: 10px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     transition: color 0.3s;
   }
   .state-neutral .info-box-label { color: var(--bank-blue); }
@@ -486,7 +405,7 @@
     display: flex;
     align-items: center;
     gap: 16px;
-    margin: 24px 0;
+    margin: 20px 0;
     color: #8a9bb0;
     font-family: 'DM Mono', monospace;
     font-size: 10px;
@@ -504,13 +423,13 @@
   .disclose-toggle {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 24px;
+    gap: 14px;
+    margin-bottom: 20px;
   }
 
   .disclose-card {
     border: 1.5px solid var(--bank-border);
-    padding: 24px 20px;
+    padding: 20px 18px;
     cursor: pointer;
     transition: all 0.22s;
     border-radius: 1px;
@@ -522,22 +441,22 @@
     background: rgba(44,111,170,0.04);
   }
 
-  .disclose-card .dc-icon { font-size: 26px; margin-bottom: 10px; }
+  .disclose-card .dc-icon { font-size: 24px; margin-bottom: 8px; }
   .disclose-card .dc-title {
     font-family: 'Playfair Display', serif;
-    font-size: 16px;
-    margin-bottom: 6px;
+    font-size: 15px;
+    margin-bottom: 5px;
     color: var(--bank-blue);
   }
   .disclose-card .dc-desc {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--bank-muted);
     line-height: 1.55;
   }
 
   .dc-badge {
     position: absolute;
-    top: 12px; right: 12px;
+    top: 10px; right: 10px;
     font-family: 'DM Mono', monospace;
     font-size: 9px;
     letter-spacing: 0.1em;
@@ -545,8 +464,7 @@
     border-radius: 2px;
     text-transform: uppercase;
   }
-  .dc-badge.bad,
-  .dc-badge.good {
+  .dc-badge.bad, .dc-badge.good {
     background: var(--bank-blue);
     color: #ffffff;
     border: 1px solid var(--bank-blue);
@@ -559,20 +477,16 @@
     background: var(--bank-card);
     border-radius: 1px;
     overflow: hidden;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     transition: border-color 0.3s;
   }
   .data-preview.visible { display: block; animation: rise 0.35s ease both; }
 
-  .data-preview.state-authorize {
-    border-left: 4px solid var(--bank-blue);
-  }
-  .data-preview.state-decline {
-    border-left: 4px solid var(--bank-muted);
-  }
+  .data-preview.state-authorize { border-left: 4px solid var(--bank-blue); }
+  .data-preview.state-decline { border-left: 4px solid var(--bank-muted); }
 
   .data-preview-header {
-    padding: 14px 20px;
+    padding: 12px 18px;
     border-bottom: 1px solid var(--bank-border);
     font-family: 'DM Mono', monospace;
     font-size: 10px;
@@ -584,46 +498,31 @@
     transition: background 0.3s, color 0.3s;
   }
 
-  .state-authorize .data-preview-header {
-    background: var(--bank-blue-light);
-    color: var(--bank-blue);
-  }
+  .state-authorize .data-preview-header { background: var(--bank-blue-light); color: var(--bank-blue); }
+  .state-decline .data-preview-header { background: #f2f0ed; color: var(--bank-muted); }
 
-  .state-decline .data-preview-header {
-    background: #f2f0ed;
-    color: var(--bank-muted);
-  }
+  .data-preview-status { font-size: 13px; flex-shrink: 0; }
+  .data-preview-body { padding: 18px; transition: opacity 0.3s; position: relative; }
 
-  .data-preview-status {
-    font-size: 13px;
-    flex-shrink: 0;
-  }
-
-  .data-preview-body {
-    padding: 20px;
-    transition: opacity 0.3s;
-    position: relative;
-  }
-
-  .state-decline .data-preview-body {
-    opacity: 0.4;
-  }
-
+  .state-decline .data-preview-body { opacity: 0.4; }
   .state-decline .data-preview-body::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: repeating-linear-gradient(
-      -45deg,
-      transparent,
-      transparent 8px,
-      rgba(107,96,77,0.06) 8px,
-      rgba(107,96,77,0.06) 9px
-    );
+    background: repeating-linear-gradient(-45deg, transparent, transparent 8px, rgba(107,96,77,0.06) 8px, rgba(107,96,77,0.06) 9px);
     pointer-events: none;
   }
 
-  .stmt-balance-row {
+  .preview-section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--bank-muted);
+    margin-bottom: 8px;
+  }
+
+  .preview-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -631,43 +530,45 @@
     background: #edf1f6;
     margin-bottom: 12px;
     font-size: 14px;
+    border-radius: 1px;
   }
 
-  .stmt-balance {
+  .preview-row-value {
     font-family: 'Playfair Display', serif;
     font-size: 18px;
     color: var(--bank-blue);
   }
 
-  .stmt-tx-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
-
-  .stmt-tx {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 9px 12px;
+  .preview-source {
+    padding: 10px 12px;
     background: #edf1f6;
-    border-radius: 1px;
-    font-size: 13px;
-  }
-  .stmt-tx-left { display: flex; flex-direction: column; gap: 2px; }
-  .stmt-tx-merchant { font-weight: 500; }
-  .stmt-tx-date { font-size: 10px; color: var(--bank-muted); font-family: 'DM Mono', monospace; }
-  .stmt-tx-amount { font-family: 'DM Mono', monospace; font-size: 13px; }
-  .stmt-tx-amount.debit { color: var(--bank-red); }
-  .stmt-tx-amount.credit { color: var(--bank-green); }
-
-  .stmt-share-note {
+    font-family: 'DM Mono', monospace;
     font-size: 11px;
     color: var(--bank-muted);
-    line-height: 1.6;
-    padding: 12px;
-    border: 1px solid var(--bank-border);
-    background: #edf1f6;
+    margin-bottom: 16px;
     border-radius: 1px;
   }
 
-  /* Bank buttons */
+  .preview-shared-box {
+    padding: 12px;
+    border-radius: 1px;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .preview-shared-box.shared {
+    background: rgba(160,67,43,0.06);
+    border: 1px solid rgba(160,67,43,0.2);
+    color: var(--bank-red);
+  }
+
+  .preview-shared-box.not-shared {
+    background: rgba(44,111,170,0.06);
+    border: 1px solid rgba(44,111,170,0.2);
+    color: var(--bank-blue);
+  }
+
+  /* Buttons */
   .btn {
     font-family: 'DM Mono', monospace;
     font-size: 12px;
@@ -687,13 +588,6 @@
   }
   .btn-ghost:hover { color: var(--bank-blue); border-color: var(--bank-blue); }
 
-  .btn-primary {
-    background: var(--ink);
-    color: var(--white);
-  }
-  .btn-primary:hover { background: #1a1a1a; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
-  .btn-primary:disabled { background: #a0aab5; cursor: not-allowed; transform: none; box-shadow: none; }
-
   .btn-bank {
     background: var(--bank-blue);
     color: #ffffff;
@@ -707,36 +601,15 @@
   }
   .btn-gold:hover { background: #b8973d; transform: translateY(-1px); }
 
-  .b-btn-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 32px;
-    padding-top: 24px;
-    border-top: 1px solid var(--bank-border);
-  }
-
-  .m-btn-row {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 32px;
-    padding-top: 24px;
-    border-top: 1px solid var(--border);
-  }
-
   /* ══════════════════════════════════════════════════════════════
-     RESULT PHASE (Meridian chrome)
+     RESULT SCREEN
      ══════════════════════════════════════════════════════════════ */
   .result-screen {
     display: none;
     padding: 60px 48px;
     text-align: center;
   }
-
-  .result-screen.visible {
-    display: block;
-    animation: rise 0.5s ease both;
-  }
+  .result-screen.visible { display: block; animation: rise 0.5s ease both; }
 
   .result-icon {
     width: 64px; height: 64px;
@@ -776,150 +649,34 @@
   .result-rate.standard { background: rgba(181,74,47,0.08); color: var(--rust); border: 1px solid rgba(181,74,47,0.25); }
   .result-rate.below { background: rgba(138,128,112,0.1); color: var(--muted); border: 1px solid var(--border); }
 
-  .result-continue {
-    margin-top: 24px;
-  }
-
+  .result-continue { margin-top: 20px; }
   .result-continue-btn {
-    display: inline-block;
     font-family: 'DM Mono', monospace;
-    font-size: 13px;
+    font-size: 12px;
     letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 16px 40px;
+    padding: 12px 28px;
     background: var(--gold);
     color: var(--ink);
     border: none;
-    border-radius: 2px;
+    border-radius: 1px;
     cursor: pointer;
     transition: all 0.2s;
   }
-
-  .result-continue-btn:hover {
-    background: #b8973d;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-  }
-
+  .result-continue-btn:hover { background: #b8973d; transform: translateY(-1px); }
   .result-continue-hint {
     font-size: 11px;
     color: var(--muted);
+    margin-top: 8px;
     font-family: 'DM Mono', monospace;
     letter-spacing: 0.06em;
-    margin-top: 10px;
   }
 
   /* ══════════════════════════════════════════════════════════════
-     OVERLAYS
+     MERIDIAN VERIFICATION SCREEN
      ══════════════════════════════════════════════════════════════ */
-  @keyframes rise {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes spin { to { transform: rotate(360deg); } }
+  .m-verify { padding: 48px 48px; }
 
-  /* Redirect */
-  .redirect-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 400;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(6px);
-  }
-  .redirect-overlay.to-bank { background: rgba(26,58,92,0.92); }
-  .redirect-overlay.to-meridian { background: rgba(13,13,13,0.88); }
-  .redirect-overlay.visible { display: flex; }
-
-  .redirect-box {
-    text-align: center;
-    color: #ffffff;
-    animation: rise 0.3s ease both;
-    padding: 0 24px;
-  }
-  .redirect-icon { font-size: 40px; margin-bottom: 20px; opacity: 0.9; }
-  .redirect-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 22px;
-    margin-bottom: 8px;
-    font-weight: 400;
-  }
-  .redirect-msg {
-    font-size: 13px;
-    color: rgba(255,255,255,0.6);
-    font-family: 'DM Mono', monospace;
-    letter-spacing: 0.06em;
-    margin-bottom: 20px;
-  }
-  .redirect-bar {
-    width: 200px;
-    height: 3px;
-    background: rgba(255,255,255,0.15);
-    border-radius: 2px;
-    overflow: hidden;
-    margin: 0 auto;
-  }
-  .redirect-bar-fill {
-    height: 100%;
-    width: 0%;
-    transition: width 0.05s linear;
-  }
-  .to-bank .redirect-bar-fill { background: #6ba3d6; }
-  .to-meridian .redirect-bar-fill { background: var(--gold); }
-
-  /* Processing */
-  .processing-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(26,58,92,0.7);
-    z-index: 300;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(4px);
-  }
-  .processing-overlay.visible { display: flex; }
-
-  .processing-box {
-    background: var(--bank-card);
-    padding: 48px 56px;
-    border-radius: 2px;
-    text-align: center;
-    border: 1px solid var(--bank-border);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-    animation: rise 0.3s ease both;
-    max-width: 380px;
-  }
-
-  .processing-spinner {
-    width: 40px; height: 40px;
-    border: 3px solid var(--bank-border);
-    border-top-color: var(--bank-accent);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin: 0 auto 20px;
-  }
-
-  .processing-text {
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    letter-spacing: 0.1em;
-    color: var(--bank-muted);
-    text-transform: uppercase;
-  }
-
-
-  /* Meridian verification screen */
-  .m-verify {
-    padding: 48px 48px;
-  }
-
-  .m-verify-header {
-    text-align: center;
-    margin-bottom: 32px;
-  }
+  .m-verify-header { text-align: center; margin-bottom: 32px; }
 
   .m-verify-icon {
     width: 56px; height: 56px;
@@ -945,10 +702,7 @@
     margin-bottom: 4px;
   }
 
-  .m-verify-subtitle {
-    font-size: 13px;
-    color: var(--muted);
-  }
+  .m-verify-subtitle { font-size: 13px; color: var(--muted); }
 
   .m-verify-progress {
     height: 3px;
@@ -966,11 +720,7 @@
     transition: width 0.3s ease;
   }
 
-  .m-verify-steps {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
+  .m-verify-steps { display: flex; flex-direction: column; gap: 14px; }
 
   .m-verify-step {
     display: flex;
@@ -980,7 +730,6 @@
     color: var(--muted);
     transition: color 0.3s;
   }
-
   .m-verify-step.active { color: var(--ink); }
   .m-verify-step.done { color: var(--sage); }
 
@@ -991,13 +740,13 @@
     flex-shrink: 0;
     transition: background 0.3s;
   }
-
-  .m-verify-step.active .m-verify-dot {
-    background: var(--gold);
-    animation: pulse-dot 1.2s infinite;
-  }
-
+  .m-verify-step.active .m-verify-dot { background: var(--gold); animation: pulse-dot 1.2s infinite; }
   .m-verify-step.done .m-verify-dot { background: var(--sage); }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
 
   .m-verify-step-label {
     font-family: 'DM Mono', monospace;
@@ -1012,61 +761,105 @@
     opacity: 0;
     transition: opacity 0.3s;
   }
-
   .m-verify-step.done .m-verify-step-check { opacity: 1; }
+
+  /* ══════════════════════════════════════════════════════════════
+     PROCESSING OVERLAY (inside bank modal)
+     ══════════════════════════════════════════════════════════════ */
+  .processing-overlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(240,243,247,0.92);
+    z-index: 10;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(3px);
+  }
+  .processing-overlay.visible { display: flex; }
+
+  .processing-box {
+    text-align: center;
+    padding: 40px;
+  }
+
+  .processing-spinner {
+    width: 40px; height: 40px;
+    border: 3px solid var(--bank-border);
+    border-top-color: var(--bank-accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 20px;
+  }
+
+  .processing-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    color: var(--bank-muted);
+    text-transform: uppercase;
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     ANIMATIONS
+     ══════════════════════════════════════════════════════════════ */
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
   /* ══════════════════════════════════════════════════════════════
      RESPONSIVE
      ══════════════════════════════════════════════════════════════ */
   @media (max-width: 768px) {
-    .m-header, .b-header { padding: 20px 24px; }
-    .m-nav, .b-nav { gap: 20px; font-size: 11px; }
+    .m-header { padding: 20px 24px; }
+    .m-nav { gap: 20px; font-size: 11px; }
     .m-hero { padding: 48px 20px 0; }
-    .b-hero { padding: 36px 20px 0; }
-    .m-card, .b-card { max-width: 100%; margin-left: 16px; margin-right: 16px; }
-    .m-card-header, .b-card-header { padding: 24px 24px; }
-    .m-card-body, .b-card-body { padding: 28px 24px; }
+    .m-card { max-width: 100%; margin-left: 16px; margin-right: 16px; }
+    .m-card-header { padding: 24px 24px; }
+    .m-card-body { padding: 28px 24px; }
     .loan-context { padding: 18px; }
-    .requester-box { padding: 14px 16px; gap: 12px; }
-    .requester-icon { width: 38px; height: 38px; font-size: 16px; }
-    .disclose-toggle { grid-template-columns: 1fr; gap: 12px; }
-    .b-btn-row, .m-btn-row { flex-direction: column-reverse; gap: 12px; }
-    .b-btn-row .btn, .m-btn-row .btn { width: 100%; text-align: center; }
-    .data-preview-body { padding: 16px; }
+    .bank-modal { width: 95%; max-height: 95vh; }
+    .bank-modal-body { padding: 20px 20px; }
+    .bank-modal-footer { padding: 12px 20px; }
+    .disclose-toggle { grid-template-columns: 1fr; gap: 10px; }
+    .m-btn-row { flex-direction: column-reverse; gap: 12px; }
+    .m-btn-row .btn { width: 100%; text-align: center; }
     .m-verify { padding: 40px 24px; }
     .result-screen { padding: 40px 24px; }
-    .processing-box { padding: 36px 32px; margin: 0 16px; }
   }
 
   @media (max-width: 480px) {
-    .m-header, .b-header { padding: 16px 16px; }
-    .m-nav, .b-nav { display: none; }
-    .m-logo, .b-logo { font-size: 18px; }
-    .m-hero h1, .b-hero h1 { font-size: 26px; }
+    .m-header { padding: 16px 16px; }
+    .m-nav { display: none; }
+    .m-logo { font-size: 18px; }
+    .m-hero h1 { font-size: 26px; }
     .m-hero { padding: 32px 16px 0; }
-    .b-hero { padding: 24px 16px 0; }
-    .m-subtitle, .b-subtitle { font-size: 13px; margin-bottom: 28px; }
-    .m-card, .b-card { margin-left: 8px; margin-right: 8px; }
-    .m-card-header, .b-card-header { padding: 18px 16px; }
-    .m-card-header h2, .b-card-header h2 { font-size: 17px; }
-    .m-card-body, .b-card-body { padding: 20px 16px; }
-    .section-title, .b-section-title { font-size: 18px; }
+    .m-subtitle { font-size: 13px; margin-bottom: 28px; }
+    .m-card { margin-left: 8px; margin-right: 8px; }
+    .m-card-header { padding: 18px 16px; }
+    .m-card-header h2 { font-size: 17px; }
+    .m-card-body { padding: 20px 16px; }
+    .section-title { font-size: 18px; }
     .loan-context { padding: 14px; }
     .lc-row { flex-direction: column; align-items: flex-start; gap: 2px; padding: 8px 0; }
-    .requester-box { flex-direction: column; text-align: center; }
-    .info-item { font-size: 12px; }
-    .disclose-card .dc-title { font-size: 15px; }
-    .disclose-card .dc-desc { font-size: 11px; }
+    .bank-modal { width: 98%; max-height: 98vh; }
+    .bank-modal-header { padding: 12px 16px; }
+    .bank-modal-body { padding: 16px 16px; }
+    .bank-modal-footer { flex-direction: column-reverse; gap: 10px; }
+    .bank-modal-footer .btn { width: 100%; text-align: center; }
+    .disclose-card .dc-title { font-size: 14px; }
+    .disclose-card .dc-desc { font-size: 10px; }
     .btn { font-size: 11px; padding: 12px 20px; }
-    .stmt-tx { padding: 8px 10px; font-size: 12px; }
     .m-verify { padding: 32px 16px; }
     .m-verify-title { font-size: 18px; }
     .result-screen h3 { font-size: 20px; }
-    .redirect-title { font-size: 18px; }
   }
 </style>
 </head>
-<body class="meridian-mode">
+<body>
 
 <!-- ╔══════════════════════════════════════════════════════════════╗
      ║  PHASE 1: MERIDIAN — Loan Overview                         ║
@@ -1093,8 +886,8 @@
       <h2>Loan Application</h2>
     </div>
     <div class="m-card-body">
-      <div class="section-title">Your Loan Application</div>
-      <p class="section-desc">Review the details of your loan request. To verify your income, you will be redirected to your bank.</p>
+      <div class="section-title">Your Loan Details</div>
+      <p class="section-desc">Review the details of your loan request. To verify your income, you will connect to your bank through a secure pop-up window.</p>
 
       <div class="loan-context">
         <div class="lc-row">
@@ -1116,98 +909,17 @@
           <span class="lc-label">Savings with Preferred Rate</span>
           <span class="lc-value" style="color:var(--sage);">&#8776; $500 over loan life</span>
         </div>
-        <div class="lc-divider"></div>
-        <div class="lc-row">
-          <span class="lc-label">Your Annual Income</span>
-          <span class="lc-value" id="displayIncome">$67,342</span>
-        </div>
       </div>
 
       <div class="m-btn-row">
-        <button class="btn btn-gold" onclick="goToBank()">Continue to Bank Authorization &rarr;</button>
+        <button class="btn btn-gold" onclick="openBankModal()">Connect to Bank &rarr;</button>
       </div>
     </div>
   </div>
 </div>
 
 <!-- ╔══════════════════════════════════════════════════════════════╗
-     ║  PHASE 2: BANK — Authorization                             ║
-     ╚══════════════════════════════════════════════════════════════╝ -->
-<div class="phase" id="phaseBank">
-  <header class="b-header">
-    <div class="b-logo">First <span>National</span> Bank</div>
-    <nav class="b-nav">
-      <a>Accounts</a>
-      <a>Transfers</a>
-      <a>Authorizations</a>
-      <a>Settings</a>
-    </nav>
-  </header>
-
-  <div class="b-hero">
-    <div class="b-eyebrow">Data Sharing Authorization</div>
-    <h1 id="bankHeroTitle">Meridian Credit is requesting<br>access to your account.</h1>
-    <p class="b-subtitle" id="bankHeroSubtitle">Review the data they are requesting and decide whether to authorize. Your bank will only share data if you explicitly approve.</p>
-  </div>
-
-  <div class="b-card">
-    <div class="b-card-header">
-      <h2>Authorization Request</h2>
-      <span class="b-card-badge">Secure Connection</span>
-    </div>
-    <div class="b-card-body">
-
-      <!-- Requester identity -->
-      <div class="requester-box">
-        <div class="requester-icon">M</div>
-        <div>
-          <div class="requester-name">Meridian Credit</div>
-          <div class="requester-purpose">Requesting income verification for preferred rate on a $10,000 personal loan</div>
-          <div class="requester-claim">Claim to verify: Annual income &ge; $45,000</div>
-        </div>
-      </div>
-
-      <div class="b-divider">Your decision</div>
-
-      <!-- Choice cards -->
-      <div class="disclose-toggle">
-        <div class="disclose-card" id="dc-none" onclick="selectDisclosure('none')">
-          <div class="dc-badge bad">Standard Rate</div>
-          <div class="dc-icon">🔒</div>
-          <div class="dc-title">Decline</div>
-          <div class="dc-desc" id="declineDesc"></div>
-        </div>
-        <div class="disclose-card" id="dc-proof" onclick="selectDisclosure('proof')">
-          <div class="dc-badge good">Preferred Rate</div>
-          <div class="dc-icon">🔓</div>
-          <div class="dc-title">Authorize</div>
-          <div class="dc-desc" id="authorizeDesc"></div>
-        </div>
-      </div>
-
-      <!-- Reactive info box (hidden until selection, appears below cards) -->
-      <div class="info-box state-neutral" id="infoBox" style="display:none;">
-        <div class="info-box-label" id="infoBoxLabel"></div>
-        <div id="infoBoxItems"></div>
-      </div>
-
-      <!-- Data preview (visible when Authorize selected) -->
-      <div class="data-preview" id="dataPreview">
-        <div class="data-preview-header"><span class="data-preview-status" id="dataPreviewStatus"></span><span id="dataPreviewHeader"></span></div>
-        <div class="data-preview-body" id="dataPreviewBody"></div>
-      </div>
-
-      <!-- Submit -->
-      <div class="b-btn-row">
-        <button class="btn btn-ghost" onclick="goBackToMeridian()">Cancel &amp; Return to Meridian</button>
-        <button class="btn btn-bank" id="submitBtn" disabled onclick="submitDecision()">Confirm &amp; Submit</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ╔══════════════════════════════════════════════════════════════╗
-     ║  PHASE 3: MERIDIAN — Result                                ║
+     ║  PHASE 2: MERIDIAN — Result                                ║
      ╚══════════════════════════════════════════════════════════════╝ -->
 <div class="phase" id="phaseResult">
   <header class="m-header">
@@ -1230,15 +942,14 @@
       <h2 id="resultCardHeader">Processing</h2>
     </div>
 
-    <!-- Meridian verification (shown first) -->
     <div class="m-verify" id="mVerifyScreen">
       <div class="m-verify-header">
         <div class="m-verify-icon" id="mVerifyIcon">&#128270;</div>
         <div class="m-verify-title" id="mVerifyTitle">Reviewing your submission</div>
-        <div class="m-verify-subtitle" id="mVerifySubtitle">This usually takes a few seconds</div>
+        <div class="m-verify-subtitle">This usually takes a few seconds</div>
       </div>
       <div class="m-verify-progress"><div class="m-verify-progress-fill" id="mVerifyBar"></div></div>
-      <div class="m-verify-steps" id="mVerifySteps">
+      <div class="m-verify-steps">
         <div class="m-verify-step" id="mvs1">
           <span class="m-verify-dot"></span>
           <span class="m-verify-step-label" id="mvs1Label">Receiving data&hellip;</span>
@@ -1257,7 +968,6 @@
       </div>
     </div>
 
-    <!-- Result (hidden, revealed after verification) -->
     <div class="result-screen" id="resultScreen">
       <div class="result-icon" id="resultIcon"><span id="resultEmoji">&#10003;</span></div>
       <h3 id="resultTitle">Application Processed</h3>
@@ -1271,29 +981,69 @@
   </div>
 </div>
 
-<!-- ═══ OVERLAYS ═══ -->
-<div class="redirect-overlay to-bank" id="redirectToBank">
-  <div class="redirect-box">
-    <div class="redirect-icon">🔐</div>
-    <div class="redirect-title">Redirecting to your bank</div>
-    <div class="redirect-msg">Connecting to First National Bank&hellip;</div>
-    <div class="redirect-bar"><div class="redirect-bar-fill" id="redirectBankBar"></div></div>
-  </div>
-</div>
+<!-- ╔══════════════════════════════════════════════════════════════╗
+     ║  BANK MODAL (popup over Meridian)                           ║
+     ╚══════════════════════════════════════════════════════════════╝ -->
+<div class="bank-modal-backdrop" id="bankModalBackdrop">
+  <div class="bank-modal" id="bankModal">
+    <div class="bank-modal-header">
+      <div class="bank-modal-logo">First <span>National</span> Bank</div>
+      <div class="bank-modal-badge">Secure Connection</div>
+    </div>
 
-<div class="redirect-overlay to-meridian" id="redirectToMeridian">
-  <div class="redirect-box">
-    <div class="redirect-icon">↩</div>
-    <div class="redirect-title">Returning to Meridian Credit</div>
-    <div class="redirect-msg">Processing your response&hellip;</div>
-    <div class="redirect-bar"><div class="redirect-bar-fill" id="redirectMeridianBar"></div></div>
-  </div>
-</div>
+    <div class="bank-modal-body" id="bankModalBody">
+      <div class="b-section-title" id="bankTitle">Authorization Request</div>
+      <p class="b-section-desc" id="bankDesc"></p>
 
-<div class="processing-overlay" id="processingOverlay">
-  <div class="processing-box">
-    <div class="processing-spinner"></div>
-    <div class="processing-text" id="processingText">Processing&hellip;</div>
+      <div class="requester-box">
+        <div class="requester-icon">M</div>
+        <div>
+          <div class="requester-name">Meridian Credit</div>
+          <div class="requester-purpose">Requesting income verification for preferred rate on a $10,000 personal loan</div>
+          <div class="requester-claim">Claim to verify: Annual income &ge; $45,000</div>
+        </div>
+      </div>
+
+      <div class="b-divider">Your decision</div>
+
+      <div class="disclose-toggle">
+        <div class="disclose-card" id="dc-none" onclick="selectDisclosure('none')">
+          <div class="dc-badge bad">Standard Rate</div>
+          <div class="dc-icon">&#128274;</div>
+          <div class="dc-title">Decline</div>
+          <div class="dc-desc" id="declineDesc"></div>
+        </div>
+        <div class="disclose-card" id="dc-proof" onclick="selectDisclosure('proof')">
+          <div class="dc-badge good">Preferred Rate</div>
+          <div class="dc-icon">&#128275;</div>
+          <div class="dc-title">Authorize</div>
+          <div class="dc-desc" id="authorizeDesc"></div>
+        </div>
+      </div>
+
+      <div class="info-box state-neutral" id="infoBox" style="display:none;">
+        <div class="info-box-label" id="infoBoxLabel"></div>
+        <div id="infoBoxItems"></div>
+      </div>
+
+      <div class="data-preview" id="dataPreview">
+        <div class="data-preview-header"><span class="data-preview-status" id="dataPreviewStatus"></span><span id="dataPreviewHeader"></span></div>
+        <div class="data-preview-body" id="dataPreviewBody"></div>
+      </div>
+    </div>
+
+    <div class="bank-modal-footer">
+      <button class="btn btn-ghost" onclick="closeBankModal()">Cancel</button>
+      <button class="btn btn-bank" id="submitBtn" disabled onclick="submitDecision()">Confirm &amp; Submit</button>
+    </div>
+
+    <!-- Processing overlay inside modal -->
+    <div class="processing-overlay" id="processingOverlay">
+      <div class="processing-box">
+        <div class="processing-spinner"></div>
+        <div class="processing-text" id="processingText">Processing&hellip;</div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1304,7 +1054,6 @@ var PARTICIPANT_ID = urlParams.get('pid') || 'unknown';
 var SENDER_TYPE = urlParams.get('type') || '1';
 var CONDITION_CODE = urlParams.get('condition') || 'a';
 
-// Map URL params to internal values
 var typeMap = { '1': 'high', '2': 'low' };
 var condMap = { 'a': 'traditional', 'b': 'exact_zkp', 'c': 'threshold_zkp' };
 var SENDER_TYPE_LABEL = typeMap[SENDER_TYPE] || 'high';
@@ -1324,51 +1073,18 @@ var _lastClickTime = null;
 var monthlySalary  = (SENDER_TYPE_LABEL === 'high') ? 5611.83 : 2682.17;
 var annualIncome   = (SENDER_TYPE_LABEL === 'high') ? 67342 : 32186;
 var accountBalance = (SENDER_TYPE_LABEL === 'high') ? 12847.63 : 4213.28;
+var meetsThreshold = annualIncome >= 45000;
 
 function fmtUSD(n) {
   return '$' + Math.abs(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
 }
 
-var balanceFormatted = '$ ' + accountBalance.toLocaleString('en-US', {minimumFractionDigits:2});
-
-var TRANSACTIONS = [
-  ['Payroll \u2014 Greenfield Solutions Inc.',  '2025-01-03',  monthlySalary],
-  ['Rent \u2014 Oakwood Property Mgmt',        '2025-01-05', -1450.00],
-  ['Whole Foods Market',                        '2025-01-06',   -94.37],
-  ['BetterHelp \u2014 Therapy Session',         '2025-01-08',   -65.00],
-  ['CVS Pharmacy \u2014 Prescription',          '2025-01-10',   -38.22],
-  ['Shell Gas Station',                         '2025-01-12',   -52.18],
-  ['Venmo \u2014 Sarah M.',                     '2025-01-13',   -45.00],
-  ['Netflix Subscription',                      '2025-01-15',   -15.99],
-  ['Amazon.com',                                '2025-01-17',  -167.43],
-  ['Hinge \u2014 Premium Subscription',         '2025-01-19',   -29.99],
-];
-
-function renderTxRows(txs) {
-  return txs.map(function(tx) {
-    var merchant = tx[0], date = tx[1], amount = tx[2];
-    var isCredit = amount > 0;
-    return '<div class="stmt-tx">' +
-      '<div class="stmt-tx-left">' +
-        '<div class="stmt-tx-merchant">' + merchant + '</div>' +
-        '<div class="stmt-tx-date">' + date + '</div>' +
-      '</div>' +
-      '<div class="stmt-tx-amount ' + (isCredit ? 'credit' : 'debit') + '">' +
-        (isCredit ? '+' : '\u2212') + fmtUSD(amount) +
-      '</div>' +
-    '</div>';
-  }).join('');
-}
-
 // ══════════════════════════════════════════════════════════════════════════════
 // CONDITION-SPECIFIC CONTENT
 // ══════════════════════════════════════════════════════════════════════════════
-var meetsThreshold = annualIncome >= 45000;
-
 var CONDITIONS = {
   traditional: {
-    bankHeroTitle: 'Meridian Credit is requesting<br>access to your account.',
-    bankHeroSubtitle: 'Review the data they are requesting and decide whether to authorize. Your bank will only share data if you explicitly approve.',
+    bankDesc: 'Meridian Credit is requesting access to your account data to verify your income. Review what will be shared and decide whether to authorize.',
     declineDesc: 'Do not share any account data with Meridian Credit. Your loan application will proceed at the standard rate (approximately $500 more).',
     authorizeDesc: 'Share the requested account data with Meridian Credit so they can verify your income and offer the preferred rate.',
     infoBoxLabel: 'Data Meridian Credit is requesting from your account',
@@ -1381,19 +1097,14 @@ var CONDITIONS = {
     withheldLabel: 'None of the following will be shared with Meridian Credit',
     dataPreviewHeader: 'Preview: data that will be shared with Meridian Credit',
     declinePreviewHeader: 'Preview: data that will NOT be shared with Meridian Credit',
-    dataPreviewHTML: function() {
-      return '<div class="stmt-balance-row">' +
-        '<span style="font-size:13px;">Current Balance</span>' +
-        '<span class="stmt-balance" id="previewBalance">\u2014</span>' +
-      '</div>' +
-      '<div style="font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--bank-muted);margin:8px 0;">Transactions \u2014 Last 30 Days</div>' +
-      '<div class="stmt-tx-list" id="previewTxList"></div>' +
-      '<div class="stmt-share-note">All of the above data, including your balance, payroll details, and every listed transaction, will be shared with Meridian Credit for income verification and underwriting purposes.</div>';
-    },
-    populatePreview: function() {
-      document.getElementById('previewBalance').textContent = balanceFormatted;
-      document.getElementById('previewTxList').innerHTML = renderTxRows(TRANSACTIONS);
-    },
+    previewSectionLabel: 'Verified Information',
+    previewRowLabel: 'Annual Income',
+    previewRowValueFn: function() { return '$' + annualIncome.toLocaleString('en-US'); },
+    previewSourceLabel: 'Source of Verification',
+    previewSource: 'Income figure derived from full bank account statement shared with Meridian Credit',
+    previewBoxType: 'shared',
+    previewBoxLabel: 'Also shared with Meridian Credit:',
+    previewBoxText: 'your account balance, all transaction details (recipients, amounts, dates), employer name from payroll deposits, and other account information.',
     bankProcessingMsgs: ['Sharing account data\u2026', 'Transmitting to Meridian\u2026', 'Evaluating application\u2026'],
     resultProofQualify: function() {
       return 'Your bank account data has been reviewed. Your annual income of $' + annualIncome.toLocaleString('en-US') + ' meets the $45,000 threshold. You qualify for the preferred rate.';
@@ -1404,8 +1115,7 @@ var CONDITIONS = {
   },
 
   exact_zkp: {
-    bankHeroTitle: 'Meridian Credit is requesting<br>income verification.',
-    bankHeroSubtitle: 'Your bank will use a secure digital verification system to confirm your exact annual income. Only the income figure is transmitted. Your balance, transactions, and account details are never shared.',
+    bankDesc: 'Meridian Credit is requesting income verification. Your bank will use a secure digital verification system to confirm your exact annual income. Only the income figure is transmitted.',
     declineDesc: 'Do not proceed with income verification. Your loan application will proceed at the standard rate (approximately $500 more).',
     authorizeDesc: 'Allow your bank to generate a proof of your exact income using a secure digital verification system. Only the income figure is shared with Meridian Credit.',
     infoBoxLabel: 'Data Meridian Credit will receive',
@@ -1417,16 +1127,14 @@ var CONDITIONS = {
     withheldLabel: 'None of the following will be shared with Meridian Credit',
     dataPreviewHeader: 'Preview: data that will be transmitted to Meridian Credit',
     declinePreviewHeader: 'Preview: data that will NOT be transmitted to Meridian Credit',
-    dataPreviewHTML: function() {
-      return '<div style="font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--bank-muted);margin-bottom:8px;">Verified Income</div>' +
-      '<div class="stmt-balance-row"><span style="font-size:13px;">Annual Income</span><span class="stmt-balance" id="previewIncome">\u2014</span></div>' +
-      '<div style="font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--bank-muted);margin:16px 0 8px;">Cryptographic Confirmation</div>' +
-      '<div style="padding:10px 12px;background:#edf1f6;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--bank-muted);margin-bottom:16px;border-radius:1px;"><span style="color:var(--bank-green);">&#10003;</span> Income figure derived from verified payroll records at First National Bank</div>' +
-      '<div style="padding:12px;background:rgba(44,111,170,0.06);border:1px solid rgba(44,111,170,0.2);border-radius:1px;font-size:12px;color:var(--bank-blue);line-height:1.6;"><strong>Not shared with Meridian Credit:</strong> your account balance, transaction history, employer name, payment recipients, or any other account details.</div>';
-    },
-    populatePreview: function() {
-      document.getElementById('previewIncome').textContent = '$' + annualIncome.toLocaleString('en-US');
-    },
+    previewSectionLabel: 'Verified Information',
+    previewRowLabel: 'Annual Income',
+    previewRowValueFn: function() { return '$' + annualIncome.toLocaleString('en-US'); },
+    previewSourceLabel: 'Cryptographic Confirmation',
+    previewSource: 'Income figure derived from verified payroll records at First National Bank',
+    previewBoxType: 'not-shared',
+    previewBoxLabel: 'Not shared with Meridian Credit:',
+    previewBoxText: 'your account balance, transaction history, employer name, payment recipients, or any other account details.',
     bankProcessingMsgs: ['Generating proof\u2026', 'Deriving income from records\u2026', 'Transmitting proof to Meridian\u2026'],
     resultProofQualify: function() {
       return 'Your annual income of $' + annualIncome.toLocaleString('en-US') + ' has been verified through secure digital verification. You qualify for the preferred rate.';
@@ -1437,8 +1145,7 @@ var CONDITIONS = {
   },
 
   threshold_zkp: {
-    bankHeroTitle: 'Meridian Credit is requesting<br>income verification.',
-    bankHeroSubtitle: 'Your bank will use a secure digital verification system to confirm whether your income meets the $45,000 threshold. Only a Yes or No answer is transmitted. Your exact income, balance, and account details are never shared.',
+    bankDesc: 'Meridian Credit is requesting income verification. Your bank will use a secure digital verification system to confirm whether your income meets the $45,000 threshold. Only a Yes or No answer is transmitted.',
     declineDesc: 'Do not proceed with income verification. Your loan application will proceed at the standard rate (approximately $500 more).',
     authorizeDesc: 'Allow your bank to generate a proof of whether your income meets the $45,000 threshold using a secure digital verification system. Only a Yes or No answer is shared with Meridian Credit.',
     infoBoxLabel: 'Data Meridian Credit will receive',
@@ -1450,21 +1157,18 @@ var CONDITIONS = {
     withheldLabel: 'None of the following will be shared with Meridian Credit',
     dataPreviewHeader: 'Preview: result that will be transmitted to Meridian Credit',
     declinePreviewHeader: 'Preview: result that will NOT be transmitted to Meridian Credit',
-    dataPreviewHTML: function() {
-      return '<div style="font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--bank-muted);margin-bottom:8px;">Threshold Verification</div>' +
-      '<div class="stmt-balance-row" id="thresholdResultRow"><span style="font-size:13px;">Annual income &ge; $45,000?</span><span class="stmt-balance" id="previewThreshold" style="font-size:16px;">\u2014</span></div>' +
-      '<div style="font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--bank-muted);margin:16px 0 8px;">Cryptographic Confirmation</div>' +
-      '<div style="padding:10px 12px;background:#edf1f6;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--bank-muted);margin-bottom:16px;border-radius:1px;"><span id="proofConfirmIcon" style="color:var(--bank-green);">&#10003;</span> Threshold result derived from verified payroll records at First National Bank</div>' +
-      '<div style="padding:12px;background:rgba(44,111,170,0.06);border:1px solid rgba(44,111,170,0.2);border-radius:1px;font-size:12px;color:var(--bank-blue);line-height:1.6;"><strong>Not shared with Meridian Credit:</strong> your exact income amount, account balance, transaction history, employer name, payment recipients, or any other account details.</div>';
+    previewSectionLabel: 'Threshold Verification',
+    previewRowLabel: 'Annual income \u2265 $45,000?',
+    previewRowValueFn: function() {
+      if (meetsThreshold) return '\u2713 Yes';
+      return '\u2717 No';
     },
-    populatePreview: function() {
-      var el = document.getElementById('previewThreshold');
-      if (meetsThreshold) {
-        el.innerHTML = '<span style="color:var(--bank-green);">&#10003; Yes</span>';
-      } else {
-        el.innerHTML = '<span style="color:var(--bank-red);">&#10005; No</span>';
-      }
-    },
+    previewRowValueColor: function() { return meetsThreshold ? 'var(--bank-green)' : 'var(--bank-red)'; },
+    previewSourceLabel: 'Cryptographic Confirmation',
+    previewSource: 'Threshold result derived from verified payroll records at First National Bank',
+    previewBoxType: 'not-shared',
+    previewBoxLabel: 'Not shared with Meridian Credit:',
+    previewBoxText: 'your exact income amount, account balance, transaction history, employer name, payment recipients, or any other account details.',
     bankProcessingMsgs: ['Generating proof\u2026', 'Checking threshold against records\u2026', 'Transmitting proof to Meridian\u2026'],
     resultProofQualify: function() {
       return 'Secure digital verification confirmed that your income meets the $45,000 threshold. You qualify for the preferred rate. Your exact income was not disclosed.';
@@ -1478,16 +1182,12 @@ var CONDITIONS = {
 var C = CONDITIONS[CONDITION];
 
 // ══════════════════════════════════════════════════════════════════════════════
-// INIT: populate condition-specific content
+// INIT
 // ══════════════════════════════════════════════════════════════════════════════
-document.getElementById('displayIncome').textContent = '$' + annualIncome.toLocaleString('en-US');
-document.getElementById('bankHeroTitle').innerHTML = C.bankHeroTitle;
-document.getElementById('bankHeroSubtitle').textContent = C.bankHeroSubtitle;
+document.getElementById('bankDesc').textContent = C.bankDesc;
 document.getElementById('declineDesc').textContent = C.declineDesc;
 document.getElementById('authorizeDesc').textContent = C.authorizeDesc;
 document.getElementById('infoBoxLabel').textContent = C.infoBoxLabel;
-document.getElementById('dataPreviewHeader').textContent = C.dataPreviewHeader;
-document.getElementById('dataPreviewBody').innerHTML = C.dataPreviewHTML();
 
 // Build info box items
 var itemsHTML = '';
@@ -1495,9 +1195,20 @@ C.infoItems.forEach(function(text, i) {
   itemsHTML += '<div class="info-item"><span class="info-icon" id="ico' + (i+1) + '">&#9679;</span><span class="info-text" id="txt' + (i+1) + '">' + text + '</span></div>';
 });
 document.getElementById('infoBoxItems').innerHTML = itemsHTML;
-
-// Icon IDs for toggle
 var _iconIds = C.infoItems.map(function(_, i) { return 'ico' + (i+1); });
+
+// Build unified data preview
+function buildPreviewHTML() {
+  var valueColor = C.previewRowValueColor ? C.previewRowValueColor() : 'var(--bank-blue)';
+  var html = '<div class="preview-section-label">' + C.previewSectionLabel + '</div>' +
+    '<div class="preview-row"><span>' + C.previewRowLabel + '</span><span class="preview-row-value" style="color:' + valueColor + ';" id="previewValue">' + C.previewRowValueFn() + '</span></div>' +
+    '<div class="preview-section-label" style="margin-top:16px;">' + C.previewSourceLabel + '</div>' +
+    '<div class="preview-source"><span style="color:var(--bank-green);">&#10003;</span> ' + C.previewSource + '</div>' +
+    '<div class="preview-shared-box ' + C.previewBoxType + '"><strong>' + C.previewBoxLabel + '</strong> ' + C.previewBoxText + '</div>';
+  return html;
+}
+document.getElementById('dataPreviewHeader').textContent = C.dataPreviewHeader;
+document.getElementById('dataPreviewBody').innerHTML = buildPreviewHTML();
 
 // ══════════════════════════════════════════════════════════════════════════════
 // PHASE SWITCHING
@@ -1508,39 +1219,16 @@ function showPhase(id) {
   window.scrollTo({top: 0, behavior: 'instant'});
 }
 
-function goToBank() {
-  showRedirect('redirectToBank', 'redirectBankBar', function() {
-    document.body.className = 'bank-mode';
-    showPhase('phaseBank');
-    _bankArrivalTime = Date.now();
-  });
+// ══════════════════════════════════════════════════════════════════════════════
+// BANK MODAL
+// ══════════════════════════════════════════════════════════════════════════════
+function openBankModal() {
+  document.getElementById('bankModalBackdrop').classList.add('visible');
+  _bankArrivalTime = Date.now();
 }
 
-function goBackToMeridian() {
-  showRedirect('redirectToMeridian', 'redirectMeridianBar', function() {
-    document.body.className = 'meridian-mode';
-    showPhase('phaseMeridian');
-  });
-}
-
-function showRedirect(overlayId, barId, callback) {
-  var overlay = document.getElementById(overlayId);
-  var bar = document.getElementById(barId);
-  bar.style.width = '0%';
-  overlay.classList.add('visible');
-
-  var pct = 0;
-  var iv = setInterval(function() {
-    pct += 3;
-    bar.style.width = Math.min(pct, 100) + '%';
-    if (pct >= 100) {
-      clearInterval(iv);
-      setTimeout(function() {
-        overlay.classList.remove('visible');
-        callback();
-      }, 200);
-    }
-  }, 25);
+function closeBankModal() {
+  document.getElementById('bankModalBackdrop').classList.remove('visible');
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1568,14 +1256,12 @@ function selectDisclosure(choice) {
   document.getElementById('dc-proof').classList.toggle('selected', choice === 'proof');
   document.getElementById('submitBtn').disabled = false;
 
-  var box   = document.getElementById('infoBox');
+  var box = document.getElementById('infoBox');
   var label = document.getElementById('infoBoxLabel');
   var preview = document.getElementById('dataPreview');
   var status = document.getElementById('dataPreviewStatus');
 
   box.style.display = 'block';
-
-  C.populatePreview();
   preview.classList.add('visible');
   preview.classList.remove('state-authorize', 'state-decline');
 
@@ -1614,16 +1300,12 @@ function submitDecision() {
     : ['Submitting application\u2026', 'Evaluating\u2026'];
 
   showProcessing(messages, function() {
-    showRedirect('redirectToMeridian', 'redirectMeridianBar', function() {
-      document.body.className = 'meridian-mode';
-      showResult(disclosureChoice);
-    });
+    // Close bank modal, show Meridian result
+    document.getElementById('bankModalBackdrop').classList.remove('visible');
+    showResult(disclosureChoice);
   });
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// PROCESSING
-// ══════════════════════════════════════════════════════════════════════════════
 function showProcessing(messages, callback) {
   var overlay = document.getElementById('processingOverlay');
   var text = document.getElementById('processingText');
@@ -1644,7 +1326,7 @@ function showProcessing(messages, callback) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// RESULT (Meridian verification + result reveal)
+// RESULT
 // ══════════════════════════════════════════════════════════════════════════════
 function showResult(choice) {
   showPhase('phaseResult');
@@ -1771,25 +1453,7 @@ function sendResponse(choice) {
     clickLog: JSON.stringify(_clickLog)
   };
 
-  // Send to parent (in case LimeSurvey listener is available)
   try { window.parent.postMessage(payload, '*'); } catch(e) {}
-
-  // Send to external endpoint (Google Apps Script)
-  // =====================================================
-  // CHANGE THIS to your Google Apps Script Web App URL
-  var ENDPOINT = '';  // e.g. 'https://script.google.com/macros/s/XXXX/exec'
-  // =====================================================
-  if (ENDPOINT) {
-    try {
-      fetch(ENDPOINT, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(payload)
-      });
-    } catch(e) {}
-  }
-
   console.log('Experiment response:', JSON.stringify(payload, null, 2));
 }
 
@@ -1797,11 +1461,25 @@ function sendResponse(choice) {
 // RETURN TO SURVEY
 // ══════════════════════════════════════════════════════════════════════════════
 function returnToSurvey() {
-  // Signal LimeSurvey to collapse iframe
+  try { window.parent.postMessage({type: 'task_continue'}, '*'); } catch(e) {}
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// AUTO-HEIGHT (for iframe embedding)
+// ══════════════════════════════════════════════════════════════════════════════
+function sendHeight() {
   try {
-    window.parent.postMessage({type: 'task_continue'}, '*');
+    var h = document.documentElement.scrollHeight;
+    window.parent.postMessage({type: 'resize', height: h}, '*');
   } catch(e) {}
 }
+window.addEventListener('load', sendHeight);
+window.addEventListener('resize', sendHeight);
+var _origShowPhase = showPhase;
+showPhase = function(id) {
+  _origShowPhase(id);
+  setTimeout(sendHeight, 50);
+};
 </script>
 </body>
 </html>
