@@ -120,11 +120,12 @@
   }
 
   .m-subtitle {
-    font-size: 15px;
-    color: var(--muted);
+    font-size: 16px;
+    color: var(--ink);
     line-height: 1.7;
-    max-width: 540px;
+    max-width: 560px;
     margin: 0 auto 44px;
+    font-weight: 400;
   }
 
   .m-card {
@@ -1032,7 +1033,7 @@
   <div class="m-hero">
     <div class="m-eyebrow">Personal Loan Application</div>
     <h1>Better rates start with<br>better information.</h1>
-    <p class="m-subtitle">Apply for a personal loan with Meridian Credit. Verify your income to unlock a preferred rate that could save you approximately $500 over the life of your loan.</p>
+    <p class="m-subtitle">Apply for a personal loan with Meridian Credit. Verify your income to unlock a preferred rate that could <strong>save you approximately $500</strong> over the life of your loan.</p>
   </div>
 
   <div class="m-card">
@@ -1327,6 +1328,7 @@ var CONDITIONS = {
     disclosedLabel: 'The following data will be shared with Meridian Credit',
     withheldLabel: 'None of the following will be shared with Meridian Credit',
     dataPreviewHeader: 'Preview: data that will be shared with Meridian Credit',
+    declinePreviewHeader: 'Preview: data that will NOT be shared with Meridian Credit',
     dataPreviewHTML: function() {
       return '<div class="stmt-balance-row">' +
         '<span style="font-size:13px;">Current Balance</span>' +
@@ -1362,6 +1364,7 @@ var CONDITIONS = {
     disclosedLabel: 'The following will be shared with Meridian Credit',
     withheldLabel: 'None of the following will be shared with Meridian Credit',
     dataPreviewHeader: 'Preview: data that will be transmitted to Meridian Credit',
+    declinePreviewHeader: 'Preview: data that will NOT be transmitted to Meridian Credit',
     dataPreviewHTML: function() {
       return '<div style="font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--bank-muted);margin-bottom:8px;">Verified Income</div>' +
       '<div class="stmt-balance-row"><span style="font-size:13px;">Annual Income</span><span class="stmt-balance" id="previewIncome">\u2014</span></div>' +
@@ -1394,6 +1397,7 @@ var CONDITIONS = {
     disclosedLabel: 'The following will be shared with Meridian Credit',
     withheldLabel: 'None of the following will be shared with Meridian Credit',
     dataPreviewHeader: 'Preview: result that will be transmitted to Meridian Credit',
+    declinePreviewHeader: 'Preview: result that will NOT be transmitted to Meridian Credit',
     dataPreviewHTML: function() {
       return '<div style="font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--bank-muted);margin-bottom:8px;">Threshold Verification</div>' +
       '<div class="stmt-balance-row" id="thresholdResultRow"><span style="font-size:13px;">Annual income &ge; $45,000?</span><span class="stmt-balance" id="previewThreshold" style="font-size:16px;">\u2014</span></div>' +
@@ -1517,18 +1521,21 @@ function selectDisclosure(choice) {
 
   box.style.display = 'block';
 
+  C.populatePreview();
+  document.getElementById('dataPreview').classList.add('visible');
+
   if (choice === 'proof') {
     box.className = 'info-box state-disclosed';
     label.textContent = C.disclosedLabel;
     _iconIds.forEach(function(id) { document.getElementById(id).innerHTML = '&#9679;'; });
-
-    C.populatePreview();
-    document.getElementById('dataPreview').classList.add('visible');
+    document.getElementById('dataPreviewHeader').textContent = C.dataPreviewHeader;
+    document.getElementById('dataPreview').style.opacity = '1';
   } else {
     box.className = 'info-box state-withheld';
     label.textContent = C.withheldLabel;
     _iconIds.forEach(function(id) { document.getElementById(id).innerHTML = '&#10005;'; });
-    document.getElementById('dataPreview').classList.remove('visible');
+    document.getElementById('dataPreviewHeader').textContent = C.declinePreviewHeader;
+    document.getElementById('dataPreview').style.opacity = '0.5';
   }
 }
 
