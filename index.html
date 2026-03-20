@@ -903,7 +903,7 @@
     </div>
     <div class="m-card-body">
       <div class="section-title">Your Loan Details</div>
-      <p class="section-desc">Review the details of your loan request. To verify your income, you will connect to your bank through a secure pop-up window.</p>
+      <p class="section-desc">Review the details of your loan request. You can verify your income through a secure bank connection to qualify for a lower interest rate.</p>
 
       <div class="loan-context">
         <div class="lc-row">
@@ -917,8 +917,13 @@
         </div>
         <div class="lc-divider"></div>
         <div class="lc-row">
-          <span class="lc-label">Income Threshold for Preferred Rate</span>
-          <span class="lc-value">$3,750 / month</span>
+          <span class="lc-label">Standard Rate</span>
+          <span class="lc-value">11.9% APR</span>
+        </div>
+        <div class="lc-divider"></div>
+        <div class="lc-row">
+          <span class="lc-label">Preferred Rate (if verified income &ge; $3,750/month)</span>
+          <span class="lc-value" style="color:var(--sage);">6.9% APR</span>
         </div>
         <div class="lc-divider"></div>
         <div class="lc-row">
@@ -1017,6 +1022,7 @@
           <div class="requester-name">Meridian Credit</div>
           <div class="requester-purpose">Requesting income verification for preferred rate on a $10,000 personal loan</div>
           <div class="requester-claim">Claim to verify: Monthly income &ge; $3,750</div>
+          <div class="requester-claim" id="reqStatus"></div>
         </div>
       </div>
 
@@ -1117,7 +1123,7 @@ var CONDITIONS = {
   traditional: {
     bankDesc: 'Meridian Credit is requesting access to your account data to verify your income. Review what will be shared and decide whether to authorize.',
     declineDesc: 'Do not share any account data with Meridian Credit. Your loan application will proceed at the standard rate (approximately $500 more).',
-    authorizeDesc: 'Share the requested account data with Meridian Credit so they can verify your income and offer the preferred rate.',
+    authorizeDesc: 'Share the requested account data with Meridian Credit so they can verify your income and offer the preferred rate if it exceeds the threshold.',
     infoBoxLabel: 'Data Meridian Credit is requesting from your account',
     infoItems: [
       'Current account balance',
@@ -1159,7 +1165,7 @@ var CONDITIONS = {
   exact_zkp: {
     bankDesc: 'Meridian Credit is requesting income verification. Your bank will use a secure digital verification system to confirm your exact monthly income. Only the income figure is transmitted.',
     declineDesc: 'Do not proceed with income verification. Your loan application will proceed at the standard rate (approximately $500 more).',
-    authorizeDesc: 'Allow your bank to generate a proof of your exact income using a secure digital verification system. Only the income figure is shared with Meridian Credit.',
+    authorizeDesc: 'Allow your bank to generate a proof of your exact income using a secure digital verification system. Only the income figure is shared. Meridian Credit will offer the preferred rate if it exceeds the threshold.',
     infoBoxLabel: 'Data Meridian Credit will receive',
     infoItems: [
       'Your exact monthly income figure',
@@ -1189,7 +1195,7 @@ var CONDITIONS = {
   threshold_zkp: {
     bankDesc: 'Meridian Credit is requesting income verification. Your bank will use a secure digital verification system to confirm whether your income meets the $3,750 threshold. Only a Yes or No answer is transmitted.',
     declineDesc: 'Do not proceed with income verification. Your loan application will proceed at the standard rate (approximately $500 more).',
-    authorizeDesc: 'Allow your bank to generate a proof of whether your income meets the $3,750 threshold using a secure digital verification system. Only a Yes or No answer is shared with Meridian Credit.',
+    authorizeDesc: 'Allow your bank to generate a proof of whether your income meets the $3,750 threshold using a secure digital verification system. Only a Yes or No answer is shared. Meridian Credit will offer the preferred rate if it exceeds the threshold.',
     infoBoxLabel: 'Data Meridian Credit will receive',
     infoItems: [
       'Whether your monthly income is at least $3,750 (Yes or No)',
@@ -1226,10 +1232,19 @@ var C = CONDITIONS[CONDITION];
 // ══════════════════════════════════════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════════════════════════════════════
+
 document.getElementById('bankDesc').textContent = C.bankDesc;
 document.getElementById('declineDesc').textContent = C.declineDesc;
 document.getElementById('authorizeDesc').textContent = C.authorizeDesc;
 document.getElementById('infoBoxLabel').textContent = C.infoBoxLabel;
+
+// Populate requester qualification status
+var reqS = document.getElementById('reqStatus');
+if (meetsThreshold) {
+  reqS.textContent = 'Your monthly income: $' + monthlyIncome.toLocaleString('en-US') + ' \u2014 meets threshold';
+} else {
+  reqS.textContent = 'Your monthly income: $' + monthlyIncome.toLocaleString('en-US') + ' \u2014 does not meet threshold';
+}
 
 // Build info box items
 var itemsHTML = '';
