@@ -136,14 +136,20 @@ button{font:inherit}
 (function(){
 "use strict";
 var PARENT_ORIGIN = "https://survey.fim-rc.de";
-var INTERFACE_VERSION = "cfa-wave-v1.0";
+var INTERFACE_VERSION = "cfa-wave-v1.1";
 var THRESHOLD = 3750;
 var MONTHLY_INCOME = 6250;
 var ACCOUNT_BALANCE = 12847.63;
 
 var params = new URLSearchParams(window.location.search);
-var sessionToken = params.get("session");
-var condition = params.get("condition");
+var sessionToken = params.get("session") || params.get("pid") || null;
+var rawCondition = params.get("condition");
+var conditionMap = {
+  "full":"full", "a":"full", "1":"full", "traditional":"full",
+  "exact":"exact", "b":"exact", "2":"exact", "exact_zkp":"exact",
+  "threshold":"threshold", "c":"threshold", "3":"threshold", "threshold_zkp":"threshold"
+};
+var condition = conditionMap[rawCondition] || null;
 var validConditions = ["full","exact","threshold"];
 var times = {
   interfaceLoadedAt: Date.now(),
@@ -161,9 +167,10 @@ function fail(msg){
   document.getElementById("phaseApplication").style.display = "none";
   post({type:"interface_error",sessionToken:sessionToken||null,condition:condition||null,interfaceVersion:INTERFACE_VERSION,error:msg});
 }
-if(!sessionToken || !/^[A-Za-z0-9_-]{1,100}$/.test(sessionToken)){
-  fail("Missing or invalid survey session.");
-  return;
+/* The original LimeSurvey pilot used pid={SAVEDID}; in inactive preview SAVEDID
+   may be blank. Session/pid is therefore metadata only, not a loading requirement. */
+if(sessionToken && !/^[A-Za-z0-9_-]{1,100}$/.test(sessionToken)){
+  sessionToken = null;
 }
 if(validConditions.indexOf(condition) === -1){
   fail("Missing or invalid verification condition.");
