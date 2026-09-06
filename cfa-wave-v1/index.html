@@ -128,7 +128,8 @@ button{font:inherit}
   <h3>Income Verified</h3>
   <p>Your income verification was completed successfully. Your verified income meets Meridian Credit's requirement for the preferred rate.</p>
   <div class="rate">Preferred Rate: 6.9% APR</div><br>
-  <button class="btn btn-gold" id="returnBtn">Continue to Survey →</button>
+  <button type="button" class="btn btn-gold" id="returnBtn">Continue to Survey →</button>
+  <div id="returnStatus" style="display:none;margin-top:12px;font-size:12px;color:#6b604d;">Returning to survey…</div>
 </div>
 </div>
 
@@ -136,7 +137,7 @@ button{font:inherit}
 (function(){
 "use strict";
 var PARENT_ORIGIN = "https://survey.fim-rc.de";
-var INTERFACE_VERSION = "cfa-wave-v1.1";
+var INTERFACE_VERSION = "cfa-wave-v1.2";
 var THRESHOLD = 3750;
 var MONTHLY_INCOME = 6250;
 var ACCOUNT_BALANCE = 12847.63;
@@ -160,7 +161,8 @@ var times = {
 };
 
 function post(message){
-  try { window.parent.postMessage(message, PARENT_ORIGIN); } catch(e) {}
+  /* Use the pilot-proven sender pattern. The LimeSurvey parent validates the sender origin. */
+  try { window.parent.postMessage(message, "*"); } catch(e) {}
 }
 function fail(msg){
   document.getElementById("errorView").style.display = "block";
@@ -257,25 +259,38 @@ function runProcessing(){
 document.getElementById("returnBtn").addEventListener("click",function(){
   if(times.returnedToSurveyAt) return;
   times.returnedToSurveyAt=Date.now();
-  var payload={
-    type:"experiment_response",
-    sessionToken:sessionToken,
-    condition:condition,
-    interfaceVersion:INTERFACE_VERSION,
-    qualified:true,
-    threshold:THRESHOLD,
-    interfaceLoadedAt:new Date(times.interfaceLoadedAt).toISOString(),
-    informationDisplayedAt:times.informationDisplayedAt?new Date(times.informationDisplayedAt).toISOString():null,
-    verificationStartedAt:times.verificationStartedAt?new Date(times.verificationStartedAt).toISOString():null,
-    resultDisplayedAt:times.resultDisplayedAt?new Date(times.resultDisplayedAt).toISOString():null,
-    returnedToSurveyAt:new Date(times.returnedToSurveyAt).toISOString(),
-    informationDwell_ms:(times.informationDisplayedAt&&times.verificationStartedAt)?times.verificationStartedAt-times.informationDisplayedAt:null,
-    interfaceTotal_ms:times.returnedToSurveyAt-times.interfaceLoadedAt,
-    interfaceComplete:true,
-    technicalError:null
-  };
-  post(payload);
-  setTimeout(function(){post({type:"task_continue",sessionToken:sessionToken,condition:condition,interfaceVersion:INTERFACE_VERSION});},50);
+
+  var btn=document.getElementById("returnBtn");
+  var status=document.getElementById("returnStatus");
+  if(btn){ btn.disabled=true; btn.textContent="Returning to Survey…"; }
+  if(status) status.style.display="block";
+
+  /* Always send task_continue, even if building the telemetry payload fails. */
+  try {
+    var payload={
+      type:"experiment_response",
+      sessionToken:sessionToken,
+      condition:condition,
+      interfaceVersion:INTERFACE_VERSION,
+      qualified:true,
+      threshold:THRESHOLD,
+      interfaceLoadedAt:new Date(times.interfaceLoadedAt).toISOString(),
+      informationDisplayedAt:times.informationDisplayedAt?new Date(times.informationDisplayedAt).toISOString():null,
+      verificationStartedAt:times.verificationStartedAt?new Date(times.verificationStartedAt).toISOString():null,
+      resultDisplayedAt:times.resultDisplayedAt?new Date(times.resultDisplayedAt).toISOString():null,
+      returnedToSurveyAt:new Date(times.returnedToSurveyAt).toISOString(),
+      informationDwell_ms:(times.informationDisplayedAt&&times.verificationStartedAt)?times.verificationStartedAt-times.informationDisplayedAt:null,
+      interfaceTotal_ms:times.returnedToSurveyAt-times.interfaceLoadedAt,
+      interfaceComplete:true,
+      technicalError:null
+    };
+    post(payload);
+  } catch(e) {}
+
+  var continueMsg={type:"task_continue",sessionToken:sessionToken,condition:condition,interfaceVersion:INTERFACE_VERSION};
+  post(continueMsg);
+  setTimeout(function(){ post(continueMsg); },100);
+  setTimeout(function(){ post(continueMsg); },400);
 });
 post({type:"interface_ready",sessionToken:sessionToken,condition:condition,interfaceVersion:INTERFACE_VERSION});
 })();
