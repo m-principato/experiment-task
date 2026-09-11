@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meridian Credit — Income Verification</title>
+<style>
+:root{
+  --ink:#0d0d0d;--paper:#f5f0e8;--cream:#ede8da;--gold:#c9a84c;--sage:#4a6741;
+  --muted:#6b604d;--border:#d4cfc0;--white:#fdfaf5;--bank-bg:#f0f3f7;
+  --bank-blue:#1a3a5c;--bank-blue-light:#e8eef4;--bank-border:#c8d5e2;
+  --bank-muted:#536475;--bank-green:#1a6b3a;--bank-red:#a0432b;--bank-card:#fff
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:var(--paper);min-height:100vh}
+button{font:inherit}
+button:focus-visible,summary:focus-visible{outline:3px solid #99731d;outline-offset:4px}
+[hidden]{display:none!important}
+.application-status{font-size:14px;color:var(--muted)}
+.bank-connection{padding:48px 24px;text-align:center;color:var(--bank-blue);font-size:16px;line-height:1.6}
+.connection-spinner{display:block;width:28px;height:28px;margin:0 auto 16px;border:3px solid var(--bank-border);border-top-color:var(--bank-blue);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.connection-spinner{animation:none}.progress>div{transition:none}}
+.loan-review{border:1px solid var(--bank-border);background:white;padding:12px 16px;margin-bottom:16px;color:var(--bank-blue);font-size:14px;line-height:1.6}
+.loan-review summary{cursor:pointer;font-weight:600;min-height:24px}
+.loan-review p{margin-top:8px}
+.auth-status{margin-top:12px;color:var(--bank-muted);font-size:14px;line-height:1.5}
+.phase{display:none}.phase.active{display:block}
+.m-header{display:flex;justify-content:space-between;align-items:center;padding:24px 48px;border-bottom:1px solid var(--border)}
+.m-logo{font-family:Georgia,serif;font-size:22px;letter-spacing:.03em}.m-logo span{color:var(--gold)}
+.m-nav{display:flex;gap:28px;font-size:12px;color:var(--muted)}
+.m-hero{max-width:760px;margin:0 auto;padding:56px 24px 24px;text-align:center}
+.m-eyebrow{font-size:11px;letter-spacing:.15em;color:#7d6425;text-transform:uppercase;margin-bottom:16px}
+.m-hero h1{font-family:Georgia,serif;font-size:clamp(32px,4.5vw,48px);line-height:1.15;margin-bottom:16px}
+.m-subtitle{font-size:15px;line-height:1.65;color:#332f28;max-width:570px;margin:0 auto}
+.m-card{max-width:680px;margin:0 auto 64px;background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 4px 35px rgba(0,0,0,.06)}
+.m-card-header{background:var(--ink);padding:24px 40px}.m-card-header h2{font-family:Georgia,serif;color:var(--white);font-size:20px;font-weight:400}
+.m-card-body{padding:36px 40px}.section-title{font-family:Georgia,serif;font-size:20px;margin-bottom:8px}.section-desc{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:24px}
+.loan-context{background:var(--cream);border:1px solid var(--border);padding:22px;border-radius:7px}
+.lc-row{display:flex;justify-content:space-between;gap:24px;align-items:center;padding:7px 0}.lc-label{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}.lc-value{font-family:Georgia,serif;font-size:16px;text-align:right}.lc-divider{height:1px;background:var(--border);margin:6px 0}
+.btn-row{display:flex;justify-content:flex-end;margin-top:26px;padding-top:22px;border-top:1px solid var(--border)}
+.btn{border:0;padding:12px 20px;border-radius:4px;cursor:pointer;font-weight:600}.btn-gold{background:var(--gold);color:#15120b}.btn-bank{background:var(--bank-blue);color:#fff}.btn:disabled{opacity:.5;cursor:not-allowed}
+.bank-modal-backdrop{display:none;position:fixed;inset:0;background:rgba(13,13,13,.52);z-index:100;align-items:center;justify-content:center;padding:18px}
+.bank-modal-backdrop.visible{display:flex}
+.bank-modal{width:min(760px,96vw);max-height:94vh;background:var(--bank-bg);display:flex;flex-direction:column;box-shadow:0 20px 80px rgba(0,0,0,.25)}
+.bank-modal-header{background:var(--bank-blue);padding:16px 26px;display:flex;justify-content:space-between;align-items:center;color:#fff;flex-shrink:0}
+.bank-modal-logo{font-size:17px;font-weight:700}.bank-modal-logo span{color:#80afd9;font-weight:400}.bank-modal-badge{font-size:9px;letter-spacing:.1em;text-transform:uppercase;opacity:.65}
+.bank-modal-body{overflow-y:auto;padding:28px 30px;flex:1}.bank-modal-footer{padding:15px 26px;border-top:1px solid var(--bank-border);background:#fff;display:flex;justify-content:flex-end;flex-shrink:0}
+.b-title{font-size:20px;font-weight:700;color:var(--bank-blue);margin-bottom:7px}.b-desc{font-size:13px;color:var(--bank-muted);line-height:1.6;margin-bottom:18px}
+.requester-box,.common-box,.receive-box{background:#fff;border:1px solid var(--bank-border);padding:16px 18px;margin-bottom:16px}
+.requester-box{display:flex;gap:13px;align-items:center;background:var(--bank-blue-light)}.requester-icon{width:38px;height:38px;background:var(--ink);color:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;flex:none}
+.requester-name{font-size:14px;font-weight:700;color:var(--bank-blue)}.requester-purpose{font-size:11px;line-height:1.45;color:var(--bank-muted);margin-top:2px}.requester-claim{font-size:11px;color:var(--bank-blue);margin-top:5px}
+.box-label{font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--bank-blue);font-weight:700;margin-bottom:10px}.common-box p,.receive-box p{font-size:13px;line-height:1.55;color:#263746}
+.receive-box{border-left:4px solid var(--bank-blue)}.receive-grid{display:grid;gap:8px}.receive-row{display:flex;justify-content:space-between;gap:20px;padding:9px 10px;background:#edf1f6;border-radius:2px;font-size:12px}.receive-row strong{color:var(--bank-blue);text-align:right}
+.tx-head{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--bank-muted);margin:14px 0 7px}.tx{display:flex;justify-content:space-between;gap:15px;padding:8px 10px;background:#edf1f6;border-radius:2px;margin-bottom:4px;font-size:12px}.tx-meta{font-size:10px;color:var(--bank-muted);margin-top:2px}.amt{font-family:Consolas,monospace;white-space:nowrap}.credit{color:var(--bank-green)}.debit{color:var(--bank-red)}
+.one-time{font-size:11px;line-height:1.45;color:var(--bank-muted);margin-top:13px}
+.processing{max-width:680px;margin:0 auto 64px;background:#fff;border:1px solid var(--border);padding:38px}.processing h3{text-align:center;font-size:19px;margin-bottom:24px}.progress{height:6px;background:#e1e1e1;border-radius:4px;overflow:hidden;margin-bottom:23px}.progress>div{height:100%;width:0;background:var(--sage);transition:width .4s ease}.step{font-size:13px;color:#777;padding:10px 0;border-bottom:1px solid #eee}.step.active{color:#222;font-weight:700}.step.done{color:var(--sage)}.step.done:after{content:" ✓";font-weight:700}
+.result{display:none;text-align:center;padding:40px}.result.visible{display:block}.result-icon{width:54px;height:54px;border-radius:50%;background:#e3efe4;color:var(--sage);display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 18px}.result h3{font-family:Georgia,serif;font-size:24px;margin-bottom:10px}.result p{font-size:14px;line-height:1.6;color:#3a3a3a;max-width:500px;margin:0 auto 20px}.rate{display:inline-block;background:var(--cream);border:1px solid var(--border);padding:13px 18px;font-family:Georgia,serif;font-size:18px;margin-bottom:24px}
+.error{max-width:640px;margin:70px auto;padding:30px;background:#fff;border:1px solid #d5b2aa;color:#632a20}.error h2{margin-bottom:10px}.error p{line-height:1.55}
+/* Readability refinements shared by all conditions. */
+.lc-label,.box-label,.tx-head{font-size:12px;letter-spacing:.04em}
+.b-desc,.common-box p,.receive-box p{font-size:16px}
+.requester-purpose,.requester-claim,.receive-row,.tx{font-size:14px}
+.tx-meta,.bank-modal-badge{font-size:12px}
+.bank-modal-footer .btn{min-height:44px}
+.bank-modal-body{overscroll-behavior:contain}
+.bank-modal{max-height:94dvh}
+@media(max-width:650px){.m-header{padding:18px 20px}.m-nav{display:none}.m-card-body{padding:28px 22px}.m-card-header{padding:22px}.bank-modal-body{padding:22px 18px}.lc-row,.receive-row{align-items:flex-start}.receive-row{flex-direction:column;gap:4px}.receive-row strong{text-align:left}}
+@media(max-width:450px){.bank-modal-backdrop{padding:8px}.bank-modal{width:100%;max-height:97dvh}.bank-modal-header{padding:14px 16px;gap:12px}.bank-modal-body{padding:18px 14px}.bank-modal-footer{padding:12px 14px}.application-status{font-size:12px}.m-header{gap:14px}.tx{gap:8px}.tx strong{overflow-wrap:anywhere}.lc-row{gap:12px}.m-hero{padding-top:32px}}
+</style>
+</head>
+<body>
+<div id="errorView" class="error" style="display:none">
+  <h2>Verification interface unavailable</h2>
+  <p id="errorText">The verification interface could not be loaded correctly. Please return to the survey and try again.</p>
+</div>
+
+<div class="phase active" id="phaseApplication">
+<header class="m-header">
+  <div class="m-logo">Meridian<span>Credit</span></div>
+  <span class="application-status">Application in progress</span>
+</header>
+<div class="m-hero">
+  <div class="m-eyebrow">Personal Loan Application</div>
+  <h1>Complete your income verification</h1>
+  <p class="m-subtitle">Verify your income through First National Bank to complete the preferred-rate review for your personal loan.</p>
+</div>
+<div class="m-card">
+  <div class="m-card-header"><h2>Loan Application</h2></div>
+  <div class="m-card-body">
+    <div class="section-title">Your Loan Details</div>
+    <p class="section-desc">Review the loan details below, then continue to the bank verification.</p>
+    <div class="loan-context">
+      <div class="lc-row"><span class="lc-label">Loan Amount</span><span class="lc-value">$10,000</span></div><div class="lc-divider"></div>
+      <div class="lc-row"><span class="lc-label">Repayment Period</span><span class="lc-value">24 months</span></div><div class="lc-divider"></div>
+      <div class="lc-row"><span class="lc-label">Lower-rate eligibility</span><span class="lc-value">Verified monthly income of at least $3,750</span></div>
+    </div>
+    <div class="btn-row"><button type="button" class="btn btn-gold" id="openBankBtn">Continue to Bank Verification →</button></div>
+  </div>
+</div>
+</div>
+
+<div class="bank-modal-backdrop" id="bankBackdrop" aria-modal="true" role="dialog" aria-labelledby="bankTitle">
+  <div class="bank-modal">
+    <div class="bank-modal-header">
+      <div class="bank-modal-logo">First <span>National</span> Bank</div>
+      <div class="bank-modal-badge">Secure Connection</div>
+    </div>
+    <div id="bankConnection" class="bank-connection" role="status" tabindex="-1" hidden><span class="connection-spinner" aria-hidden="true"></span>Connecting to First National Bank…</div>
+    <div class="bank-modal-body" id="bankContent" hidden>
+      <h2 class="b-title" id="bankTitle" tabindex="-1">Income Verification</h2>
+      <p class="b-desc">First National Bank will verify your income using your account records and send the information below to Meridian Credit for this one-time verification.</p>
+      <div class="requester-box">
+        <div class="requester-icon">M</div>
+        <div>
+          <div class="requester-name">Meridian Credit</div>
+          <div class="requester-purpose">Income verification for preferred loan rate</div>
+          <div class="requester-claim"><strong>Requirement:</strong> Monthly income ≥ $3,750</div>
+        </div>
+      </div>
+      <details class="loan-review" id="loanReview">
+        <summary>View loan details</summary>
+        <p>$10,000 personal loan · 24 months<br>A lower interest rate is available with verified monthly income of at least $3,750.</p>
+      </details>
+      <div class="common-box">
+        <div class="box-label">Records used by First National Bank for verification</div>
+        <p>Your payroll and account records</p>
+      </div>
+      <div class="receive-box">
+        <div class="box-label">Information Meridian Credit will receive</div>
+        <div class="auth-status">Verification status: Authenticated by First National Bank</div>
+        <div id="conditionOutput"></div>
+        <p class="one-time">Meridian Credit will receive the information shown above as part of this one-time income verification.</p>
+      </div>
+    </div>
+    <div class="bank-modal-footer" id="bankFooter" hidden><button type="button" class="btn btn-bank" id="verifyBtn" disabled>Continue with Verification</button></div>
+  </div>
+</div>
+
+<div class="phase" id="phaseResult">
+<header class="m-header"><div class="m-logo">Meridian<span>Credit</span></div><span class="application-status">Income verification</span></header>
+<div class="m-hero"><div class="m-eyebrow">Income Verification</div><h1>Completing your application</h1></div>
+<div class="processing" id="processing">
+  <h3>Processing verification</h3>
+  <div class="progress"><div id="progressBar"></div></div>
+  <div class="step" id="step1">Receiving verification information…</div>
+  <div class="step" id="step2">Verifying income requirement…</div>
+  <div class="step" id="step3">Finalizing application…</div>
+</div>
+<div class="m-card result" id="result" tabindex="-1" aria-labelledby="resultTitle">
+  <div class="result-icon">✓</div>
+  <h3 id="resultTitle">Income Verified</h3>
+  <p>Your income verification was completed successfully. Your verified income meets Meridian Credit's requirement for the preferred rate.</p>
+  <div class="rate">Eligible for the preferred rate</div><br>
+  <button type="button" class="btn btn-gold" id="returnBtn">Continue to Survey →</button>
+  <div id="returnStatus" style="display:none;margin-top:12px;font-size:12px;color:#6b604d;">Returning to survey…</div>
+</div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var PARENT_ORIGIN = "https://survey.fim-rc.de";
+var INTERFACE_VERSION = "cfa-wave-v1.4";
+var CONNECTION_DELAY_MS = 600;
+var THRESHOLD = 3750;
+var MONTHLY_INCOME = 6250;
+var ACCOUNT_BALANCE = 12847.63;
+
+var params = new URLSearchParams(window.location.search);
+var sessionToken = params.get("session") || params.get("pid") || null;
+var rawCondition = params.get("condition");
+var conditionMap = {
+  "full":"full", "a":"full", "1":"full", "traditional":"full",
+  "exact":"exact", "b":"exact", "2":"exact", "exact_zkp":"exact",
+  "threshold":"threshold", "c":"threshold", "3":"threshold", "threshold_zkp":"threshold"
+};
+var condition = conditionMap[rawCondition] || null;
+var validConditions = ["full","exact","threshold"];
+var times = {
+  interfaceLoadedAt: Date.now(),
+  bankConnectionStartedAt: null,
+  informationDisplayedAt: null,
+  verificationStartedAt: null,
+  resultDisplayedAt: null,
+  returnedToSurveyAt: null
+};
+var bankOpening = false;
+var loanDetailsOpenCount = 0;
+
+function post(message){
+  /* Use the pilot-proven sender pattern. The LimeSurvey parent validates the sender origin. */
+  try { window.parent.postMessage(message, "*"); } catch(e) {}
+}
+function fail(msg){
+  document.getElementById("errorView").style.display = "block";
+  document.getElementById("phaseApplication").style.display = "none";
+  post({type:"interface_error",sessionToken:sessionToken||null,condition:condition||null,interfaceVersion:INTERFACE_VERSION,error:msg});
+}
+/* The original LimeSurvey pilot used pid={SAVEDID}; in inactive preview SAVEDID
+   may be blank. Session/pid is therefore metadata only, not a loading requirement. */
+if(sessionToken && !/^[A-Za-z0-9_-]{1,100}$/.test(sessionToken)){
+  sessionToken = null;
+}
+if(validConditions.indexOf(condition) === -1){
+  fail("Missing or invalid verification condition.");
+  return;
+}
+
+var transactions = [
+  ["Payroll — Greenfield Solutions Inc.","Aug 3, 2026", 6250.00],
+  ["Rent — Oakwood Property Mgmt","Aug 5, 2026",-1450.00],
+  ["Whole Foods Market","Aug 6, 2026",-94.37],
+  ["BetterHelp — Therapy Session","Aug 8, 2026",-65.00],
+  ["CVS Pharmacy — Prescription","Aug 10, 2026",-38.22],
+  ["Shell Gas Station","Aug 12, 2026",-52.18],
+  ["Venmo — Sarah M.","Aug 13, 2026",-45.00],
+  ["Netflix Subscription","Aug 15, 2026",-15.99],
+  ["Amazon.com","Aug 17, 2026",-167.43],
+  ["Hinge — Premium Subscription","Aug 19, 2026",-29.99]
+];
+function usd(n){return "$"+Math.abs(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});}
+function renderOutput(){
+  var el=document.getElementById("conditionOutput");
+  if(condition==="full"){
+    var tx = transactions.map(function(t){
+      var cls=t[2]>=0?"credit":"debit", sign=t[2]>=0?"+":"−";
+      return '<div class="tx"><div><strong>'+t[0]+'</strong><div class="tx-meta">'+t[1]+'</div></div><div class="amt '+cls+'">'+sign+usd(t[2])+'</div></div>';
+    }).join("");
+    el.innerHTML =
+      '<div class="receive-grid">'+
+      '<div class="receive-row"><span>Monthly income</span><strong>$6,250</strong></div>'+
+      '<div class="receive-row"><span>Employer</span><strong>Greenfield Solutions Inc.</strong></div>'+
+      '<div class="receive-row"><span>Current account balance</span><strong>$12,847.63</strong></div>'+
+      '</div><div class="tx-head">Recent account transactions</div>'+tx;
+  } else if(condition==="exact"){
+    el.innerHTML =
+      '<div class="receive-grid">'+
+      '<div class="receive-row"><span>Verified monthly income</span><strong>$6,250</strong></div>'+
+      '</div>';
+  } else {
+    el.innerHTML =
+      '<div class="receive-grid">'+
+      '<div class="receive-row"><span>Monthly income ≥ $3,750</span><strong>Yes</strong></div>'+
+      '</div>';
+  }
+}
+renderOutput();
+
+document.getElementById("openBankBtn").addEventListener("click",function(){
+  if(bankOpening || times.verificationStartedAt) return;
+  bankOpening = true;
+  times.bankConnectionStartedAt = Date.now();
+  document.getElementById("openBankBtn").disabled = true;
+  document.getElementById("phaseApplication").inert = true;
+  document.getElementById("bankBackdrop").classList.add("visible");
+  document.getElementById("bankConnection").hidden = false;
+  document.getElementById("bankConnection").focus();
+  document.body.style.overflow = "hidden";
+  setTimeout(function(){
+    document.getElementById("bankConnection").hidden = true;
+    document.getElementById("bankContent").hidden = false;
+    document.getElementById("bankFooter").hidden = false;
+    document.getElementById("bankContent").scrollTop = 0;
+    times.informationDisplayedAt = Date.now();
+    document.getElementById("verifyBtn").disabled = false;
+    document.getElementById("bankTitle").focus();
+  },CONNECTION_DELAY_MS);
+});
+document.getElementById("loanReview").addEventListener("toggle",function(){
+  if(this.open) loanDetailsOpenCount++;
+});
+document.getElementById("bankBackdrop").addEventListener("keydown",function(event){
+  if(event.key !== "Tab") return;
+  if(!document.getElementById("bankConnection").hidden){event.preventDefault();return;}
+  var first = document.querySelector("#loanReview summary");
+  var last = document.getElementById("verifyBtn");
+  if(event.shiftKey && (document.activeElement === first || document.activeElement === document.getElementById("bankTitle"))){event.preventDefault();last.focus();}
+  else if(!event.shiftKey && document.activeElement === last){event.preventDefault();first.focus();}
+});
+document.getElementById("verifyBtn").addEventListener("click",function(){
+  if(!times.informationDisplayedAt || times.verificationStartedAt) return;
+  document.getElementById("verifyBtn").disabled = true;
+  times.verificationStartedAt=Date.now();
+  document.body.style.overflow = "";
+  document.getElementById("bankBackdrop").classList.remove("visible");
+  document.getElementById("phaseApplication").classList.remove("active");
+  document.getElementById("phaseResult").classList.add("active");
+  runProcessing();
+});
+function runProcessing(){
+  var steps=[document.getElementById("step1"),document.getElementById("step2"),document.getElementById("step3")];
+  var bar=document.getElementById("progressBar");
+  var i=0;
+  function setStep(idx){
+    steps.forEach(function(s,j){s.classList.toggle("active",j===idx);if(j<idx)s.classList.add("done");});
+    bar.style.width=((idx+0.25)/3*100)+"%";
+  }
+  setStep(0);
+  var iv=setInterval(function(){
+    steps[i].classList.remove("active");steps[i].classList.add("done");i++;
+    bar.style.width=Math.min(100,(i/3)*100)+"%";
+    if(i<3){setStep(i);}
+    else{
+      clearInterval(iv);
+      setTimeout(function(){
+        document.getElementById("processing").style.display="none";
+        document.getElementById("result").classList.add("visible");
+        times.resultDisplayedAt=Date.now();
+        document.getElementById("result").focus();
+        bar.style.width="100%";
+      },350);
+    }
+  },700);
+}
+document.getElementById("returnBtn").addEventListener("click",function(){
+  if(times.returnedToSurveyAt) return;
+  times.returnedToSurveyAt=Date.now();
+
+  var btn=document.getElementById("returnBtn");
+  var status=document.getElementById("returnStatus");
+  if(btn){ btn.disabled=true; btn.textContent="Returning to Survey…"; }
+  if(status) status.style.display="block";
+
+  /* Always send task_continue, even if building the telemetry payload fails. */
+  try {
+    var payload={
+      type:"experiment_response",
+      sessionToken:sessionToken,
+      condition:condition,
+      interfaceVersion:INTERFACE_VERSION,
+      qualified:true,
+      threshold:THRESHOLD,
+      interfaceLoadedAt:new Date(times.interfaceLoadedAt).toISOString(),
+      bankConnectionStartedAt:times.bankConnectionStartedAt?new Date(times.bankConnectionStartedAt).toISOString():null,
+      connectionDelayTarget_ms:CONNECTION_DELAY_MS,
+      bankConnection_ms:(times.bankConnectionStartedAt&&times.informationDisplayedAt)?times.informationDisplayedAt-times.bankConnectionStartedAt:null,
+      loanDetailsOpenCount:loanDetailsOpenCount,
+      informationDisplayedAt:times.informationDisplayedAt?new Date(times.informationDisplayedAt).toISOString():null,
+      verificationStartedAt:times.verificationStartedAt?new Date(times.verificationStartedAt).toISOString():null,
+      resultDisplayedAt:times.resultDisplayedAt?new Date(times.resultDisplayedAt).toISOString():null,
+      returnedToSurveyAt:new Date(times.returnedToSurveyAt).toISOString(),
+      informationDwell_ms:(times.informationDisplayedAt&&times.verificationStartedAt)?times.verificationStartedAt-times.informationDisplayedAt:null,
+      interfaceTotal_ms:times.returnedToSurveyAt-times.interfaceLoadedAt,
+      interfaceComplete:true,
+      technicalError:null
+    };
+    post(payload);
+  } catch(e) {}
+
+  var continueMsg={type:"task_continue",sessionToken:sessionToken,condition:condition,interfaceVersion:INTERFACE_VERSION};
+  post(continueMsg);
+  setTimeout(function(){ post(continueMsg); },100);
+  setTimeout(function(){ post(continueMsg); },400);
+});
+post({type:"interface_ready",sessionToken:sessionToken,condition:condition,interfaceVersion:INTERFACE_VERSION});
+})();
+</script>
+</body>
+</html>
