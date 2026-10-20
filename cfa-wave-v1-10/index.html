@@ -9,13 +9,14 @@
 .income-visual{margin:20px 0;padding:20px;background:#f5f8fb;border-radius:10px;color:var(--bank-blue)}
 .income-visual-title{font-size:13px}
 .income-axis{--axis-y:58px;position:relative;height:132px;margin-right:12px}
-.income-axis-line{position:absolute;left:0;right:0;top:var(--axis-y);transform:translateY(-50%);height:2px;background:var(--bank-border)}
-.income-axis-line:after{content:"";position:absolute;right:-6px;top:-4px;border-left:8px solid var(--bank-border);border-top:5px solid transparent;border-bottom:5px solid transparent}
+.income-axis-line{position:absolute;left:0;right:0;top:var(--axis-y);transform:translateY(-50%);height:2px;background:linear-gradient(to right,var(--bank-border) 0%,var(--bank-border) 88%,transparent 100%)}
+
 .income-minimum{position:absolute;left:37.5%;top:var(--axis-y);transform:translateY(-50%);height:28px;width:1px;background:var(--bank-muted)}
-.income-range{position:absolute;left:37.5%;right:0;top:var(--axis-y);transform:translateY(-50%);height:8px;background:var(--bank-blue)}
-.income-range:after{content:"";position:absolute;right:-7px;top:50%;transform:translateY(-50%);border-left:10px solid var(--bank-blue);border-top:8px solid transparent;border-bottom:8px solid transparent}
+.income-range{position:absolute;left:37.5%;right:0;top:var(--axis-y);transform:translateY(-50%);height:22px;background:linear-gradient(to right,rgba(27,59,88,.22) 0%,rgba(27,59,88,.22) 75%,rgba(27,59,88,0) 100%)}
+.income-range-label{position:absolute;left:37.5%;right:0;bottom:calc(100% - var(--axis-y) + 20px);text-align:center;font-size:12px;line-height:1.35}
 .income-point{position:absolute;left:62.5%;top:var(--axis-y);width:0;height:0;font-size:14px;text-align:center}
 .income-point span{position:absolute;left:0;bottom:18px;transform:translateX(-50%);white-space:nowrap;font-weight:600}
+.income-point em{position:absolute;left:0;top:26px;transform:translateX(-50%);white-space:nowrap;font-size:12px;font-style:normal;font-weight:400}
 .income-point i{position:absolute;left:0;top:0;transform:translate(-50%,-50%);display:block;width:14px;height:14px;border-radius:50%;background:var(--bank-blue)}
 .income-zero{position:absolute;left:0;top:84px;font-size:12px}
 .income-threshold-label{position:absolute;left:37.5%;top:84px;transform:translateX(-50%);font-size:12px;text-align:center;white-space:nowrap}
@@ -206,7 +207,7 @@ button:focus-visible,summary:focus-visible{outline:3px solid #99731d;outline-off
 (function(){
 "use strict";
 var PARENT_ORIGIN = "https://survey.fim-rc.de";
-var INTERFACE_VERSION = "cfa-wave-v1.10.2";
+var INTERFACE_VERSION = "cfa-wave-v1.10.3";
 var CONNECTION_DELAY_MS = 600;
 var THRESHOLD = 3750;
 var MONTHLY_INCOME = 6250;
@@ -274,7 +275,7 @@ function renderIncomeScale(){
     '<div class="income-visual-title">Monthly income (US dollars)</div>'+
     '<div class="income-axis" role="img" aria-label="'+description+'">'+
     '<div class="income-axis-line"></div>'+
-    (isThreshold?'<div class="income-range"></div>':'<div class="income-point"><span>$6,250</span><i></i></div>')+
+    (isThreshold?'<div class="income-range"></div><div class="income-range-label">Your income is within this range</div>':'<div class="income-point"><span>$6,250</span><i></i><em>Your income</em></div>')+
     '<div class="income-minimum"></div><span class="income-zero">$0</span>'+
     '<div class="income-threshold-label">$3,750<span>Required minimum</span></div></div>'+
     '<p class="income-visual-note">'+(isThreshold?'At least $3,750 per month. The exact amount is not provided.':'Exactly $6,250 per month. This is above the $3,750 required minimum.')+'</p></div>';
@@ -283,7 +284,7 @@ function renderOutput(){
   var el=document.getElementById("conditionOutput");
   var incomeRow=condition==="threshold"
     ? '<div class="receive-row"><span>Monthly income of at least 3,750 US dollars</span><strong>Requirement met</strong></div>'
-    : '<div class="receive-row"><span>Verified monthly income</span><strong>6,250 US dollars</strong></div>';
+    : '<div class="receive-row"><span>Monthly income</span><strong>6,250 US dollars</strong></div>';
   var incomeSection='<section class="information-section" aria-labelledby="incomeSectionHeading"><h3 id="incomeSectionHeading">Income information</h3><div class="receive-grid">'+incomeRow+'</div>'+renderIncomeScale()+'</section>';
   var accountContent;
   if(condition==="full"){
