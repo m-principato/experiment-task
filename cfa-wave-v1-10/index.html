@@ -101,17 +101,18 @@ button:focus-visible,summary:focus-visible{outline:3px solid #99731d;outline-off
 .box-label{font-size:17px;text-transform:none;letter-spacing:0;line-height:1.4;font-weight:600;margin-bottom:0}
 .auth-status{font-size:12px;margin:8px 0 18px;color:#5a6d7e}
 .receive-box .review-instruction{font-size:14px;line-height:1.65;margin:0 0 22px;color:#4b5d6d}
-.receive-row{background:transparent;border-radius:0;padding:12px 0;gap:20px;align-items:center;border-bottom:1px solid #edf0f3;font-size:14px}
-.receive-grid{gap:0}.receive-row:last-child{border-bottom:0}
-#conditionOutput>.receive-grid:first-child>.receive-row:first-child{padding-top:0;padding-bottom:0}
-#conditionOutput>.receive-grid:first-child>.receive-row:first-child strong{font-size:20px;letter-spacing:-.25px}
+.receive-row{background:#edf1f6;border-radius:3px;padding:10px 12px;gap:20px;align-items:center;border:0;font-size:14px}
+.receive-grid{gap:8px}.receive-row strong{font-size:14px;font-weight:600;letter-spacing:0}
+.information-section h3{font-family:inherit;font-size:14px;line-height:1.5;font-weight:600;color:var(--bank-blue);margin:0 0 12px}
+.information-section+.information-section{margin-top:24px}
+.receive-box .no-account-information{font-size:14px;line-height:1.6;color:#263746}
 .income-visual-title{font-size:12px;color:#536779}
 .receive-box .income-visual-note{font-size:13px;line-height:1.6;color:#42586b}
 .receive-box .disclosure-summary{border:0;margin:18px 0 0;padding:0;font-size:14px;line-height:1.65}
 .receive-box .one-time{border-top:1px solid #e5ebf0;margin-top:20px;padding-top:16px;font-size:12px;line-height:1.6;color:#647485}
-.tx-head{margin:24px 0 10px;font-size:12px;text-transform:none;letter-spacing:0;font-weight:600}
-.tx{padding:12px 0;margin:0;background:transparent;border-bottom:1px solid #edf0f3;border-radius:0;font-size:13px}
-.tx strong{font-weight:500}.tx-meta{font-size:12px;margin-top:5px}.amt{font-family:Arial,Helvetica,sans-serif;font-variant-numeric:tabular-nums}
+.tx-head{margin:18px 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+.tx{padding:10px 12px;margin:0 0 4px;background:#edf1f6;border:0;border-radius:3px;font-size:14px}
+.tx strong{font-weight:600}.tx-meta{font-size:12px;margin-top:4px}.amt{font-family:Consolas,monospace;font-variant-numeric:tabular-nums}
 @media(max-width:650px){.bank-modal-body{padding:22px 18px}.receive-box{padding:20px}.receive-row{align-items:flex-start}.income-visual{padding:16px}.bank-modal-header,.bank-modal-footer{padding:16px 20px}}
 @media(max-width:450px){.bank-modal{border-radius:12px}.bank-modal-body{padding:20px 14px}.receive-box{padding:16px}.bank-modal-header{padding:16px}.bank-modal-badge{font-size:10px}.bank-modal-logo{font-size:15px}.box-label{font-size:16px}.b-title{font-size:22px}.bank-modal-footer .btn{width:100%}.income-visual{padding:14px 12px}.income-threshold-label{font-size:11px}.tx{flex-wrap:wrap}.tx>div:first-child{flex:1 1 155px}}
 </style>
@@ -205,7 +206,7 @@ button:focus-visible,summary:focus-visible{outline:3px solid #99731d;outline-off
 (function(){
 "use strict";
 var PARENT_ORIGIN = "https://survey.fim-rc.de";
-var INTERFACE_VERSION = "cfa-wave-v1.10.1";
+var INTERFACE_VERSION = "cfa-wave-v1.10.2";
 var CONNECTION_DELAY_MS = 600;
 var THRESHOLD = 3750;
 var MONTHLY_INCOME = 6250;
@@ -280,30 +281,24 @@ function renderIncomeScale(){
 }
 function renderOutput(){
   var el=document.getElementById("conditionOutput");
+  var incomeRow=condition==="threshold"
+    ? '<div class="receive-row"><span>Monthly income of at least 3,750 US dollars</span><strong>Requirement met</strong></div>'
+    : '<div class="receive-row"><span>Verified monthly income</span><strong>6,250 US dollars</strong></div>';
+  var incomeSection='<section class="information-section" aria-labelledby="incomeSectionHeading"><h3 id="incomeSectionHeading">Income information</h3><div class="receive-grid">'+incomeRow+'</div>'+renderIncomeScale()+'</section>';
+  var accountContent;
   if(condition==="full"){
     var tx = transactions.map(function(t){
       var cls=t[2]>=0?"credit":"debit", sign=t[2]>=0?"+":"−";
       return '<div class="tx"><div><strong>'+t[0]+'</strong><div class="tx-meta">'+t[1]+'</div></div><div class="amt '+cls+'">'+sign+usd(t[2])+'</div></div>';
     }).join("");
-    el.innerHTML =
-      '<div class="receive-grid">'+
-      '<div class="receive-row"><span>Monthly income</span><strong>6,250 US dollars</strong></div>'+
-      '</div>'+renderIncomeScale()+'<div class="receive-grid">'+
+    accountContent = '<div class="receive-grid">'+
       '<div class="receive-row"><span>Employer</span><strong>Greenfield Solutions Inc.</strong></div>'+
       '<div class="receive-row"><span>Current account balance</span><strong>12,847.63 US dollars</strong></div>'+
-      '</div><div class="tx-head">Recent account transactions</div>'+tx+
-      '<p class="disclosure-summary">Meridian Credit receives the income amount, employer, account balance, and transactions shown above.</p>';
-  } else if(condition==="exact"){
-    el.innerHTML =
-      '<div class="receive-grid">'+
-      '<div class="receive-row"><span>Verified monthly income</span><strong>6,250 US dollars</strong></div>'+
-      '</div>'+renderIncomeScale()+'<p class="disclosure-summary">Meridian Credit receives the exact monthly income amount shown above. It does not receive the employer, account balance, or transactions.</p>';
+      '</div><div class="tx-head">Recent account transactions</div>'+tx;
   } else {
-    el.innerHTML =
-      '<div class="receive-grid">'+
-      '<div class="receive-row"><span>Monthly income of at least 3,750 US dollars</span><strong>Requirement met</strong></div>'+
-      '</div>'+renderIncomeScale()+'<p class="disclosure-summary">Meridian Credit receives only confirmation that the monthly income requirement is met. It does not receive the exact income amount, employer, account balance, or transactions.</p>';
+    accountContent='<p class="no-account-information">No additional account information is sent.</p>';
   }
+  el.innerHTML=incomeSection+'<section class="information-section" aria-labelledby="accountSectionHeading"><h3 id="accountSectionHeading">Additional account information</h3>'+accountContent+'</section>';
 }
 renderOutput();
 
