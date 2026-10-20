@@ -207,8 +207,10 @@ button:focus-visible,summary:focus-visible{outline:3px solid #99731d;outline-off
 (function(){
 "use strict";
 var PARENT_ORIGIN = "https://survey.fim-rc.de";
-var INTERFACE_VERSION = "cfa-wave-v1.10.3";
+var INTERFACE_VERSION = "cfa-wave-v1.10.4";
 var CONNECTION_DELAY_MS = 600;
+var MINIMUM_REVIEW_MS = 10000;
+var reviewTimer = null;
 var THRESHOLD = 3750;
 var MONTHLY_INCOME = 6250;
 var ACCOUNT_BALANCE = 12847.63;
@@ -303,6 +305,19 @@ function renderOutput(){
 }
 renderOutput();
 
+function updateReviewButton(){
+  var btn = document.getElementById("verifyBtn");
+  var remaining = Math.max(0, MINIMUM_REVIEW_MS - (Date.now() - times.informationDisplayedAt));
+  btn.disabled = remaining > 0 || !!times.verificationStartedAt;
+  btn.textContent = remaining > 0 ? "Continue in " + Math.ceil(remaining / 1000) + " s" : "Continue with Verification";
+  if(remaining === 0 && reviewTimer !== null){ clearInterval(reviewTimer); reviewTimer = null; }
+}
+function startReviewTimer(){
+  if(reviewTimer !== null) clearInterval(reviewTimer);
+  reviewTimer = setInterval(updateReviewButton, 100);
+  updateReviewButton();
+}
+
 document.getElementById("openBankBtn").addEventListener("click",function(){
   if(bankOpening || times.verificationStartedAt) return;
   bankOpening = true;
@@ -318,8 +333,8 @@ document.getElementById("openBankBtn").addEventListener("click",function(){
     document.getElementById("bankContent").hidden = false;
     document.getElementById("bankFooter").hidden = false;
     document.getElementById("bankContent").scrollTop = 0;
-    times.informationDisplayedAt = Date.now();
-    document.getElementById("verifyBtn").disabled = false;
+    if(!times.informationDisplayedAt) times.informationDisplayedAt = Date.now();
+    startReviewTimer();
     document.getElementById("bankTitle").focus();
   },CONNECTION_DELAY_MS);
 });
@@ -331,11 +346,12 @@ document.getElementById("bankBackdrop").addEventListener("keydown",function(even
   if(!document.getElementById("bankConnection").hidden){event.preventDefault();return;}
   var first = document.querySelector("#loanReview summary");
   var last = document.getElementById("verifyBtn");
+  if(last.disabled) last = first;
   if(event.shiftKey && (document.activeElement === first || document.activeElement === document.getElementById("bankTitle"))){event.preventDefault();last.focus();}
   else if(!event.shiftKey && document.activeElement === last){event.preventDefault();first.focus();}
 });
 document.getElementById("verifyBtn").addEventListener("click",function(){
-  if(!times.informationDisplayedAt || times.verificationStartedAt) return;
+  if(!times.informationDisplayedAt || times.verificationStartedAt || Date.now() - times.informationDisplayedAt < MINIMUM_REVIEW_MS) return;
   document.getElementById("verifyBtn").disabled = true;
   times.verificationStartedAt=Date.now();
   document.body.style.overflow = "";
@@ -390,6 +406,7 @@ document.getElementById("returnBtn").addEventListener("click",function(){
       interfaceLoadedAt:new Date(times.interfaceLoadedAt).toISOString(),
       bankConnectionStartedAt:times.bankConnectionStartedAt?new Date(times.bankConnectionStartedAt).toISOString():null,
       connectionDelayTarget_ms:CONNECTION_DELAY_MS,
+      minimumReviewTarget_ms:MINIMUM_REVIEW_MS,
       bankConnection_ms:(times.bankConnectionStartedAt&&times.informationDisplayedAt)?times.informationDisplayedAt-times.bankConnectionStartedAt:null,
       loanDetailsOpenCount:loanDetailsOpenCount,
       informationDisplayedAt:times.informationDisplayedAt?new Date(times.informationDisplayedAt).toISOString():null,
