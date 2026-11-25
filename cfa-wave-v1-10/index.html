@@ -216,7 +216,7 @@ button:focus-visible,summary:focus-visible{outline:3px solid #99731d;outline-off
 (function(){
 "use strict";
 var PARENT_ORIGIN = "https://survey.fim-rc.de";
-var INTERFACE_VERSION = "cfa-wave-v1.10.5";
+var INTERFACE_VERSION = "cfa-wave-v1.10.6";
 var CONNECTION_DELAY_MS = 600;
 var MINIMUM_REVIEW_MS = 10000;
 var reviewTimer = null;
@@ -289,7 +289,7 @@ function renderIncomeScale(){
     (isThreshold?'<div class="income-range"></div><div class="income-range-label">Your income is within this range</div>':'<div class="income-point"><span>$6,250</span><i></i><em>Your income</em></div>')+
     '<div class="income-minimum"></div><span class="income-zero">$0</span>'+
     '<div class="income-threshold-label">$3,750<span>Required minimum</span></div></div>'+
-    '<p class="income-visual-note">'+description+'</p></div>';
+    '<p class="income-visual-note">'+(isThreshold?'<strong>'+description+'</strong>':description)+'</p></div>';
 }
 function renderOutput(){
   var el=document.getElementById("conditionOutput");
