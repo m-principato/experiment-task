@@ -71,7 +71,6 @@ button:focus-visible,summary:focus-visible{outline:3px solid #99731d;outline-off
 .box-label{font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--bank-blue);font-weight:700;margin-bottom:10px}.common-box p,.receive-box p{font-size:13px;line-height:1.55;color:#263746}
 .receive-box{border-left:4px solid var(--bank-blue)}.receive-grid{display:grid;gap:8px}.receive-row{display:flex;justify-content:space-between;gap:20px;padding:9px 10px;background:#edf1f6;border-radius:2px;font-size:12px}.receive-row strong{color:var(--bank-blue);text-align:right}
 .tx-head{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--bank-muted);margin:14px 0 7px}.tx{display:flex;justify-content:space-between;gap:15px;padding:8px 10px;background:#edf1f6;border-radius:2px;margin-bottom:4px;font-size:12px}.tx-meta{font-size:10px;color:var(--bank-muted);margin-top:2px}.amt{font-family:Consolas,monospace;white-space:nowrap}.credit{color:var(--bank-green)}.debit{color:var(--bank-red)}
-.one-time{font-size:11px;line-height:1.45;color:var(--bank-muted);margin-top:13px}
 .processing{max-width:680px;margin:0 auto 64px;background:#fff;border:1px solid var(--border);padding:38px}.processing h3{text-align:center;font-size:19px;margin-bottom:24px}.progress{height:6px;background:#e1e1e1;border-radius:4px;overflow:hidden;margin-bottom:23px}.progress>div{height:100%;width:0;background:var(--sage);transition:width .4s ease}.step{font-size:13px;color:#777;padding:10px 0;border-bottom:1px solid #eee}.step.active{color:#222;font-weight:700}.step.done{color:var(--sage)}.step.done:after{content:" ✓";font-weight:700}
 .result{display:none;text-align:center;padding:40px}.result.visible{display:block}.result-icon{width:54px;height:54px;border-radius:50%;background:#e3efe4;color:var(--sage);display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 18px}.result h3{font-family:Georgia,serif;font-size:24px;margin-bottom:10px}.result p{font-size:14px;line-height:1.6;color:#3a3a3a;max-width:500px;margin:0 auto 20px}.rate{display:inline-block;background:var(--cream);border:1px solid var(--border);padding:13px 18px;font-family:Georgia,serif;font-size:18px;margin-bottom:24px}
 .error{max-width:640px;margin:70px auto;padding:30px;background:#fff;border:1px solid #d5b2aa;color:#632a20}.error h2{margin-bottom:10px}.error p{line-height:1.55}
@@ -92,6 +91,11 @@ button:focus-visible,summary:focus-visible{outline:3px solid #99731d;outline-off
 .bank-modal-header{padding:20px 28px}
 .bank-modal-body{padding:26px 28px;scrollbar-width:thin;scrollbar-color:#c4cdd5 transparent}
 .bank-modal-footer{padding:16px 28px;border-top:1px solid #e2e7ec}
+.bank-modal-footer{flex-direction:column;align-items:stretch;gap:10px}
+.transfer-heading,.transfer-list{font-family:inherit;font-size:14px;line-height:1.45}
+.transfer-heading{font-weight:600;color:var(--bank-blue);margin:0 0 3px}
+.transfer-list{list-style:disc;padding-inline-start:20px;color:#263746}
+.bank-modal-footer .btn{align-self:flex-end}
 .bank-modal-footer .btn{border-radius:8px;padding:13px 22px}
 .b-title{font-size:24px;letter-spacing:-.4px;margin-bottom:8px}
 .b-desc{font-size:15px;line-height:1.65;margin-bottom:22px;max-width:640px}
@@ -110,12 +114,12 @@ button:focus-visible,summary:focus-visible{outline:3px solid #99731d;outline-off
 .income-visual-title{font-size:12px;color:#536779}
 .receive-box .income-visual-note{font-size:13px;line-height:1.6;color:#42586b}
 .receive-box .disclosure-summary{border:0;margin:18px 0 0;padding:0;font-size:14px;line-height:1.65}
-.receive-box .one-time{border-top:1px solid #e5ebf0;margin-top:20px;padding-top:16px;font-size:12px;line-height:1.6;color:#647485}
 .tx-head{margin:18px 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
 .tx{padding:10px 12px;margin:0 0 4px;background:#edf1f6;border:0;border-radius:3px;font-size:14px}
 .tx strong{font-weight:600}.tx-meta{font-size:12px;margin-top:4px}.amt{font-family:Consolas,monospace;font-variant-numeric:tabular-nums}
 @media(max-width:650px){.bank-modal-body{padding:22px 18px}.receive-box{padding:20px}.receive-row{align-items:flex-start}.income-visual{padding:16px}.bank-modal-header,.bank-modal-footer{padding:16px 20px}}
 @media(max-width:450px){.bank-modal{border-radius:12px}.bank-modal-body{padding:20px 14px}.receive-box{padding:16px}.bank-modal-header{padding:16px}.bank-modal-badge{font-size:10px}.bank-modal-logo{font-size:15px}.box-label{font-size:16px}.b-title{font-size:22px}.bank-modal-footer .btn{width:100%}.income-visual{padding:14px 12px}.income-threshold-label{font-size:11px}.tx{flex-wrap:wrap}.tx>div:first-child{flex:1 1 155px}}
+@media(max-height:450px){.bank-modal{overflow-y:auto}.bank-modal-body{flex:none;overflow-y:visible}}
 </style>
 </head>
 <body>
@@ -174,12 +178,17 @@ button:focus-visible,summary:focus-visible{outline:3px solid #99731d;outline-off
       <div class="receive-box">
         <div class="box-label">Information Meridian Credit receives</div>
         <div class="auth-status">Verification status: Authenticated by First National Bank</div>
-        <p class="review-instruction">Please review the information below before continuing. This is the information Meridian Credit will receive.</p>
+        <p class="review-instruction">Please review the information below before continuing with this one-time verification.</p>
         <div id="conditionOutput"></div>
-        <p class="one-time">First National Bank will send the information shown above to Meridian Credit as part of this one-time income verification.</p>
       </div>
     </div>
-    <div class="bank-modal-footer" id="bankFooter" hidden><button type="button" class="btn btn-bank" id="verifyBtn" disabled>Continue with Verification</button></div>
+    <div class="bank-modal-footer" id="bankFooter" hidden>
+      <section aria-labelledby="transferHeading">
+        <h3 class="transfer-heading" id="transferHeading">What First National Bank will send to Meridian Credit</h3>
+        <ul class="transfer-list" id="transferList"></ul>
+      </section>
+      <button type="button" class="btn btn-bank" id="verifyBtn" disabled>Continue with Verification</button>
+    </div>
   </div>
 </div>
 
@@ -207,7 +216,7 @@ button:focus-visible,summary:focus-visible{outline:3px solid #99731d;outline-off
 (function(){
 "use strict";
 var PARENT_ORIGIN = "https://survey.fim-rc.de";
-var INTERFACE_VERSION = "cfa-wave-v1.10.4";
+var INTERFACE_VERSION = "cfa-wave-v1.10.5";
 var CONNECTION_DELAY_MS = 600;
 var MINIMUM_REVIEW_MS = 10000;
 var reviewTimer = null;
@@ -271,8 +280,8 @@ function usd(n){return Math.abs(n).toLocaleString("en-US",{minimumFractionDigits
 function renderIncomeScale(){
   var isThreshold=condition==="threshold";
   var description=isThreshold
-    ? "Meridian Credit learns that monthly income is at least 3,750 US dollars. The exact amount is not provided."
-    : "Meridian Credit learns the exact monthly income of 6,250 US dollars, above the required minimum of 3,750 US dollars.";
+    ? "First National Bank will tell Meridian Credit that your monthly income is at least $3,750. It will not send Meridian Credit your exact monthly income."
+    : "First National Bank will tell Meridian Credit that your monthly income is $6,250. This is above the $3,750 required minimum.";
   return '<div class="income-visual">'+
     '<div class="income-visual-title">Monthly income (US dollars)</div>'+
     '<div class="income-axis" role="img" aria-label="'+description+'">'+
@@ -280,7 +289,7 @@ function renderIncomeScale(){
     (isThreshold?'<div class="income-range"></div><div class="income-range-label">Your income is within this range</div>':'<div class="income-point"><span>$6,250</span><i></i><em>Your income</em></div>')+
     '<div class="income-minimum"></div><span class="income-zero">$0</span>'+
     '<div class="income-threshold-label">$3,750<span>Required minimum</span></div></div>'+
-    '<p class="income-visual-note">'+(isThreshold?'At least $3,750 per month. The exact amount is not provided.':'Exactly $6,250 per month. This is above the $3,750 required minimum.')+'</p></div>';
+    '<p class="income-visual-note">'+description+'</p></div>';
 }
 function renderOutput(){
   var el=document.getElementById("conditionOutput");
@@ -302,6 +311,16 @@ function renderOutput(){
     accountContent='<p class="no-account-information">No additional account information is sent.</p>';
   }
   el.innerHTML=incomeSection+'<section class="information-section" aria-labelledby="accountSectionHeading"><h3 id="accountSectionHeading">Additional account information</h3>'+accountContent+'</section>';
+  var sentItems=condition==="threshold"
+    ? ["Confirmation that your monthly income is at least $3,750"]
+    : ["Your exact monthly income: $6,250"];
+  if(condition==="full") sentItems.push("Your employer and current account balance", "The recent account transactions shown above");
+  var list=document.getElementById("transferList");
+  sentItems.forEach(function(label){
+    var item=document.createElement("li");
+    item.textContent=label;
+    list.appendChild(item);
+  });
 }
 renderOutput();
 
