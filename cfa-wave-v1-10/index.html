@@ -81,7 +81,7 @@ button:focus-visible,summary:focus-visible{outline:3px solid #99731d;outline-off
 .requester-purpose,.requester-claim,.receive-row,.tx{font-size:14px}
 .tx-meta,.bank-modal-badge{font-size:12px}
 .bank-modal-footer .btn{min-height:44px}
-.bank-modal-body{overscroll-behavior:contain}
+.bank-modal-body{min-height:0;overscroll-behavior:contain}
 .bank-modal{max-height:94dvh}
 @media(max-width:650px){.m-header{padding:18px 20px}.m-nav{display:none}.m-card-body{padding:28px 22px}.m-card-header{padding:22px}.bank-modal-body{padding:22px 18px}.lc-row,.receive-row{align-items:flex-start}.receive-row{flex-direction:column;gap:4px}.receive-row strong{text-align:left}}
 @media(max-width:450px){.bank-modal-backdrop{padding:8px}.bank-modal{width:100%;max-height:97dvh}.bank-modal-header{padding:14px 16px;gap:12px}.bank-modal-body{padding:18px 14px}.bank-modal-footer{padding:12px 14px}.application-status{font-size:12px}.m-header{gap:14px}.tx{gap:8px}.tx strong{overflow-wrap:anywhere}.lc-row{gap:12px}.m-hero{padding-top:32px}}
@@ -91,13 +91,16 @@ button:focus-visible,summary:focus-visible{outline:3px solid #99731d;outline-off
 .bank-modal-header{padding:20px 28px}
 .bank-modal-body{padding:26px 28px;scrollbar-width:thin;scrollbar-color:#c4cdd5 transparent}
 .bank-modal-footer{padding:16px 28px;border-top:1px solid #e2e7ec}
-.bank-modal-footer{flex-direction:column;align-items:stretch;gap:10px}
+.bank-modal-footer{align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 12px}
+.bank-step{margin-bottom:5px;color:var(--bank-muted);font-size:12px;font-weight:600}
+.review-status{color:var(--bank-muted);font-size:13px;line-height:1.4}
+.bank-back-btn{background:transparent;color:var(--bank-blue);border:1px solid var(--bank-border)}
+.bank-modal-footer .btn-bank{margin-inline-start:auto}
 .transfer-summary{padding:12px 14px;background:#fff5d8;border:1px solid #e3c979;border-radius:8px}
 .transfer-heading,.transfer-list,.transfer-note{font-family:inherit;font-size:14px;line-height:1.45}
 .transfer-heading{font-weight:600;color:var(--bank-blue);margin:0 0 3px}
 .transfer-list{list-style:disc;padding-inline-start:20px;color:#372f20}
 .transfer-note{margin-top:4px;color:#372f20}
-.bank-modal-footer .btn{align-self:flex-end}
 .bank-modal-footer .btn{border-radius:8px;padding:13px 22px}
 .b-title{font-size:24px;letter-spacing:-.4px;margin-bottom:8px}
 .b-desc{font-size:15px;line-height:1.65;margin-bottom:22px;max-width:640px}
@@ -120,7 +123,7 @@ button:focus-visible,summary:focus-visible{outline:3px solid #99731d;outline-off
 .tx strong{font-weight:600}.tx-meta{font-size:12px;margin-top:4px}.amt{font-family:Consolas,monospace;font-variant-numeric:tabular-nums}
 @media(max-width:650px){.bank-modal-body{padding:22px 18px}.receive-box{padding:20px}.receive-row{align-items:flex-start}.income-visual{padding:16px}.bank-modal-header,.bank-modal-footer{padding:16px 20px}}
 @media(max-width:450px){.bank-modal{border-radius:12px}.bank-modal-body{padding:20px 14px}.receive-box{padding:16px}.bank-modal-header{padding:16px}.bank-modal-badge{font-size:10px}.bank-modal-logo{font-size:15px}.box-label{font-size:16px}.b-title{font-size:22px}.bank-modal-footer .btn{width:100%}.income-visual{padding:14px 12px}.income-threshold-label{font-size:11px}.tx{flex-wrap:wrap}.tx>div:first-child{flex:1 1 155px}}
-@media(max-height:450px){.bank-modal{overflow-y:auto}.bank-modal-body{flex:none;overflow-y:visible}}
+@media(max-height:450px){.bank-modal-header,.bank-modal-footer{padding-block:8px}.bank-modal-body{padding-block:14px}}
 </style>
 </head>
 <body>
@@ -161,7 +164,8 @@ button:focus-visible,summary:focus-visible{outline:3px solid #99731d;outline-off
       <div class="bank-modal-badge">Secure Connection</div>
     </div>
     <div id="bankConnection" class="bank-connection" role="status" tabindex="-1" hidden><span class="connection-spinner" aria-hidden="true"></span>Connecting to First National Bank…</div>
-    <div class="bank-modal-body" id="bankContent" hidden>
+    <div class="bank-modal-body" id="bankContent" tabindex="0" role="region" aria-labelledby="bankTitle" hidden>
+      <p class="bank-step">Step 1 of 2</p>
       <h2 class="b-title" id="bankTitle" tabindex="-1">Income Verification</h2>
       <p class="b-desc">First National Bank will verify your income using your payroll and account records. The information it sends to Meridian Credit is shown below.</p>
       <div class="requester-box">
@@ -184,12 +188,22 @@ button:focus-visible,summary:focus-visible{outline:3px solid #99731d;outline-off
       </div>
     </div>
     <div class="bank-modal-footer" id="bankFooter" hidden>
+      <p class="review-status" id="reviewStatus" role="status"></p>
+      <button type="button" class="btn btn-bank" id="reviewContinueBtn" aria-describedby="reviewStatus" disabled>Continue to sharing review</button>
+    </div>
+    <div class="bank-modal-body" id="bankConfirmation" tabindex="0" role="region" aria-labelledby="confirmationTitle" hidden>
+      <p class="bank-step">Step 2 of 2</p>
+      <h2 class="b-title" id="confirmationTitle" tabindex="-1">Approve information sharing</h2>
+      <p class="b-desc">Review what First National Bank will send. Select “Approve sharing and continue” to authorize this one-time transfer to Meridian Credit.</p>
       <section class="transfer-summary" aria-labelledby="transferHeading">
         <h3 class="transfer-heading" id="transferHeading">What First National Bank will send to Meridian Credit</h3>
         <ul class="transfer-list" id="transferList"></ul>
         <p class="transfer-note" id="transferNote" hidden></p>
       </section>
-      <button type="button" class="btn btn-bank" id="verifyBtn" disabled>Continue with Verification</button>
+    </div>
+    <div class="bank-modal-footer" id="confirmationFooter" hidden>
+      <button type="button" class="btn bank-back-btn" id="backToReviewBtn">Back</button>
+      <button type="button" class="btn btn-bank" id="verifyBtn">Approve sharing and continue</button>
     </div>
   </div>
 </div>
@@ -218,7 +232,7 @@ button:focus-visible,summary:focus-visible{outline:3px solid #99731d;outline-off
 (function(){
 "use strict";
 var PARENT_ORIGIN = "https://survey.fim-rc.de";
-var INTERFACE_VERSION = "cfa-wave-v1.10.10";
+var INTERFACE_VERSION = "cfa-wave-v1.11.0";
 var CONNECTION_DELAY_MS = 600;
 var MINIMUM_REVIEW_MS = 10000;
 var reviewTimer = null;
@@ -241,6 +255,7 @@ var times = {
   interfaceLoadedAt: Date.now(),
   bankConnectionStartedAt: null,
   informationDisplayedAt: null,
+  sharingConfirmationDisplayedAt: null,
   verificationStartedAt: null,
   resultDisplayedAt: null,
   returnedToSurveyAt: null
@@ -335,17 +350,43 @@ function renderOutput(){
 }
 renderOutput();
 
+var bankDialog = document.getElementById("bankBackdrop");
+var bankContent = document.getElementById("bankContent");
+var bankFooter = document.getElementById("bankFooter");
+var bankConfirmation = document.getElementById("bankConfirmation");
+var confirmationFooter = document.getElementById("confirmationFooter");
+var reviewContinue = document.getElementById("reviewContinueBtn");
+var reviewStatus = document.getElementById("reviewStatus");
+var verifyBtn = document.getElementById("verifyBtn");
+var reviewScrollTop = 0;
+
+function reviewIsAtEnd(){
+  return bankContent.scrollHeight - bankContent.clientHeight - bankContent.scrollTop <= 2;
+}
 function updateReviewButton(){
-  var btn = document.getElementById("verifyBtn");
+  if(bankContent.hidden || !times.informationDisplayedAt) return;
   var remaining = Math.max(0, MINIMUM_REVIEW_MS - (Date.now() - times.informationDisplayedAt));
-  btn.disabled = remaining > 0 || !!times.verificationStartedAt;
-  btn.textContent = remaining > 0 ? "Continue in " + Math.ceil(remaining / 1000) + " s" : "Continue with Verification";
+  var atEnd = reviewIsAtEnd();
+  var status = bankContent.scrollHeight - bankContent.clientHeight <= 2
+    ? "Review the information before continuing."
+    : (atEnd ? "End of review." : "Scroll to the bottom to continue.");
+  var label = remaining > 0 ? "Continue in " + Math.ceil(remaining / 1000) + " s" : "Continue to sharing review";
+  reviewContinue.disabled = remaining > 0 || !atEnd;
+  if(reviewStatus.textContent !== status) reviewStatus.textContent = status;
+  if(reviewContinue.textContent !== label) reviewContinue.textContent = label;
   if(remaining === 0 && reviewTimer !== null){ clearInterval(reviewTimer); reviewTimer = null; }
 }
 function startReviewTimer(){
   if(reviewTimer !== null) clearInterval(reviewTimer);
   reviewTimer = setInterval(updateReviewButton, 100);
   updateReviewButton();
+}
+bankContent.addEventListener("scroll",updateReviewButton,{passive:true});
+if(typeof ResizeObserver !== "undefined"){
+  var reviewResize = new ResizeObserver(updateReviewButton);
+  reviewResize.observe(bankContent);
+  reviewResize.observe(document.getElementById("loanReview"));
+  reviewResize.observe(document.getElementById("conditionOutput"));
 }
 
 document.getElementById("openBankBtn").addEventListener("click",function(){
@@ -354,15 +395,15 @@ document.getElementById("openBankBtn").addEventListener("click",function(){
   times.bankConnectionStartedAt = Date.now();
   document.getElementById("openBankBtn").disabled = true;
   document.getElementById("phaseApplication").inert = true;
-  document.getElementById("bankBackdrop").classList.add("visible");
+  bankDialog.classList.add("visible");
   document.getElementById("bankConnection").hidden = false;
   document.getElementById("bankConnection").focus();
   document.body.style.overflow = "hidden";
   setTimeout(function(){
     document.getElementById("bankConnection").hidden = true;
-    document.getElementById("bankContent").hidden = false;
-    document.getElementById("bankFooter").hidden = false;
-    document.getElementById("bankContent").scrollTop = 0;
+    bankContent.hidden = false;
+    bankFooter.hidden = false;
+    bankContent.scrollTop = 0;
     if(!times.informationDisplayedAt) times.informationDisplayedAt = Date.now();
     startReviewTimer();
     document.getElementById("bankTitle").focus();
@@ -370,22 +411,46 @@ document.getElementById("openBankBtn").addEventListener("click",function(){
 });
 document.getElementById("loanReview").addEventListener("toggle",function(){
   if(this.open) loanDetailsOpenCount++;
+  updateReviewButton();
 });
-document.getElementById("bankBackdrop").addEventListener("keydown",function(event){
+reviewContinue.addEventListener("click",function(){
+  if(bankContent.hidden || !reviewIsAtEnd() || Date.now() - times.informationDisplayedAt < MINIMUM_REVIEW_MS) return;
+  reviewScrollTop = bankContent.scrollTop;
+  bankContent.hidden = true;
+  bankFooter.hidden = true;
+  bankConfirmation.hidden = false;
+  confirmationFooter.hidden = false;
+  bankConfirmation.scrollTop = 0;
+  bankDialog.setAttribute("aria-labelledby","confirmationTitle");
+  if(!times.sharingConfirmationDisplayedAt) times.sharingConfirmationDisplayedAt = Date.now();
+  document.getElementById("confirmationTitle").focus({preventScroll:true});
+});
+document.getElementById("backToReviewBtn").addEventListener("click",function(){
+  bankConfirmation.hidden = true;
+  confirmationFooter.hidden = true;
+  bankContent.hidden = false;
+  bankFooter.hidden = false;
+  bankDialog.setAttribute("aria-labelledby","bankTitle");
+  bankContent.scrollTop = reviewScrollTop;
+  updateReviewButton();
+  bankContent.focus({preventScroll:true});
+});
+bankDialog.addEventListener("keydown",function(event){
   if(event.key !== "Tab") return;
   if(!document.getElementById("bankConnection").hidden){event.preventDefault();return;}
-  var first = document.querySelector("#loanReview summary");
-  var last = document.getElementById("verifyBtn");
-  if(last.disabled) last = first;
-  if(event.shiftKey && (document.activeElement === first || document.activeElement === document.getElementById("bankTitle"))){event.preventDefault();last.focus();}
+  var confirming = !bankConfirmation.hidden;
+  var first = confirming ? bankConfirmation : bankContent;
+  var last = confirming ? verifyBtn : (reviewContinue.disabled ? document.querySelector("#loanReview summary") : reviewContinue);
+  var title = document.getElementById(confirming ? "confirmationTitle" : "bankTitle");
+  if(event.shiftKey && (document.activeElement === first || document.activeElement === title)){event.preventDefault();last.focus();}
   else if(!event.shiftKey && document.activeElement === last){event.preventDefault();first.focus();}
 });
-document.getElementById("verifyBtn").addEventListener("click",function(){
-  if(!times.informationDisplayedAt || times.verificationStartedAt || Date.now() - times.informationDisplayedAt < MINIMUM_REVIEW_MS) return;
-  document.getElementById("verifyBtn").disabled = true;
+verifyBtn.addEventListener("click",function(){
+  if(bankConfirmation.hidden || !times.sharingConfirmationDisplayedAt || times.verificationStartedAt) return;
+  verifyBtn.disabled = true;
   times.verificationStartedAt=Date.now();
   document.body.style.overflow = "";
-  document.getElementById("bankBackdrop").classList.remove("visible");
+  bankDialog.classList.remove("visible");
   document.getElementById("phaseApplication").classList.remove("active");
   document.getElementById("phaseResult").classList.add("active");
   runProcessing();
@@ -440,6 +505,7 @@ document.getElementById("returnBtn").addEventListener("click",function(){
       bankConnection_ms:(times.bankConnectionStartedAt&&times.informationDisplayedAt)?times.informationDisplayedAt-times.bankConnectionStartedAt:null,
       loanDetailsOpenCount:loanDetailsOpenCount,
       informationDisplayedAt:times.informationDisplayedAt?new Date(times.informationDisplayedAt).toISOString():null,
+      sharingConfirmationDisplayedAt:times.sharingConfirmationDisplayedAt?new Date(times.sharingConfirmationDisplayedAt).toISOString():null,
       verificationStartedAt:times.verificationStartedAt?new Date(times.verificationStartedAt).toISOString():null,
       resultDisplayedAt:times.resultDisplayedAt?new Date(times.resultDisplayedAt).toISOString():null,
       returnedToSurveyAt:new Date(times.returnedToSurveyAt).toISOString(),
