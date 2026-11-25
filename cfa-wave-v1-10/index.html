@@ -232,7 +232,7 @@ button:focus-visible,summary:focus-visible{outline:3px solid #99731d;outline-off
 (function(){
 "use strict";
 var PARENT_ORIGIN = "https://survey.fim-rc.de";
-var INTERFACE_VERSION = "cfa-wave-v1.11.0";
+var INTERFACE_VERSION = "cfa-wave-v1.11.1";
 var CONNECTION_DELAY_MS = 600;
 var MINIMUM_REVIEW_MS = 10000;
 var reviewTimer = null;
@@ -367,9 +367,7 @@ function updateReviewButton(){
   if(bankContent.hidden || !times.informationDisplayedAt) return;
   var remaining = Math.max(0, MINIMUM_REVIEW_MS - (Date.now() - times.informationDisplayedAt));
   var atEnd = reviewIsAtEnd();
-  var status = bankContent.scrollHeight - bankContent.clientHeight <= 2
-    ? "Review the information before continuing."
-    : (atEnd ? "End of review." : "Scroll to the bottom to continue.");
+  var status = atEnd ? "" : "Scroll to the bottom to continue.";
   var label = remaining > 0 ? "Continue in " + Math.ceil(remaining / 1000) + " s" : "Continue to sharing review";
   reviewContinue.disabled = remaining > 0 || !atEnd;
   if(reviewStatus.textContent !== status) reviewStatus.textContent = status;
